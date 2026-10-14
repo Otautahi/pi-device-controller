@@ -22,6 +22,52 @@ Pi Device Controller is an independent Raspberry Pi project with a phone-friendl
 | **Away from home** | Private VPN for the dashboard + optional Lovense HTTPS cloud control |
 | **Cost** | Free software; API availability and provider terms may change |
 
+## Screenshots
+
+A look at the **Edge 2-only dashboard**, rendered from the v4.2 interface with **simulated demo data**. Screenshots show the complete interface, not cropped sections. **Click an image to view it full-size.**
+
+### Desktop dashboard
+
+Choose from classic motor patterns, configure Autonomous Director, monitor device status, and use manual motor controls.
+
+<p align="center">
+  <a href="docs/images/edge2-screenshot-1-desktop-overview.png">
+    <img src="docs/images/edge2-screenshot-1-desktop-overview.png" alt="Complete Pi Device Controller desktop interface, including the mode grid, Autonomous Director, settings and independent motor controls" width="650">
+  </a>
+</p>
+
+<details>
+<summary><strong>📱 Mobile — Autonomous Director running</strong></summary>
+
+<br>
+
+See a timed autonomous session, live motor levels, and the phone-friendly layout.
+
+<p align="center">
+  <a href="docs/images/edge2-screenshot-2-mobile-autonomous.png">
+    <img src="docs/images/edge2-screenshot-2-mobile-autonomous.png" alt="Full mobile dashboard displaying a simulated active Autonomous Director session" width="320">
+  </a>
+</p>
+
+</details>
+
+<details>
+<summary><strong>☁️ Remote control — Cloud-connected session</strong></summary>
+
+<br>
+
+A simulated remote session with Cloud Keeper status, connection details and the last reported battery level.
+
+<p align="center">
+  <a href="docs/images/edge2-screenshot-3-cloud-connected.png">
+    <img src="docs/images/edge2-screenshot-3-cloud-connected.png" alt="Complete desktop dashboard showing a simulated cloud-connected Edge 2 session and battery information" width="650">
+  </a>
+</p>
+
+</details>
+
+*All screenshots are demonstrations, not recordings of an active device. They contain no real user credentials, personal IP addresses or private device identifiers.*
+
 ## The autonomous Director
 
 The Director varies two-motor intensity and rhythm over time rather than looping through fixed patterns. Four behaviours are planned for the first release:
