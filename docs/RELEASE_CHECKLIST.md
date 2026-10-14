@@ -14,7 +14,7 @@
 - [ ] `.gitignore`, staged contents and Git history reviewed for leaks
 - [ ] Documentation checked by someone who has not installed the software before
 - [ ] Confirm Lovense API/distribution requirements for non-personal users
-- [ ] Confirm MIT licence and chosen public project name
+- [ ] Confirm MIT licence before release (project name: PulseDirector)
 - [ ] GitHub release/commit only after owner's go-ahead
 
 Do not publish the live contents of the Raspberry Pi's `~/edge-ai` directory.
