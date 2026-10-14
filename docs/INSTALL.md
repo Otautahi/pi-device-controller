@@ -2,11 +2,11 @@
 
 > **Pre-release documentation.** The public repository does not yet contain an officially released controller. Follow these steps **after** a tested release is published. They are for the **Lovense Edge 2 only**. Keep other Lovense devices disconnected.
 
-This guide assumes a Raspberry Pi running Raspberry Pi OS, a Windows PC for initial setup, and an Android phone running Lovense Remote. Linux/macOS users can adapt the SSH commands. You don't need prior GitHub experience.
+This guide uses Raspberry Pi OS as the tested Linux example, a Windows PC for initial setup, and an Android phone running Lovense Remote. The controller is intended for other Linux hosts too, but those installations have not yet been verified. Linux/macOS users can adapt the SSH commands. You don't need prior GitHub experience.
 
 ## 1. What you need
 
-- A Raspberry Pi running Raspberry Pi OS with an internet connection and working SSH; Raspberry Pi 3B+ is the original development platform.
+- A Linux host with Python 3, an internet connection and SSH; the original development and tested platform is Raspberry Pi 3B+ running Raspberry Pi OS.
 - Python 3, `curl`, `python3-venv` and sufficient permissions to install packages.
 - A **Lovense Edge 2** and Lovense Remote on your phone, paired through Bluetooth.
 - A trusted home network. For control **away from home**, a private VPN (for example WireGuard) that can reach the Pi's home LAN address.
@@ -28,12 +28,12 @@ After connecting, the prompt should show something like `user@raspberrypi:~ $`. 
 
 ## 3. Download a tagged release
 
-After the first release appears under **[GitHub Releases](https://github.com/Otautahi/pi-device-controller/releases)**, use the tagged source archive or clone the repository. For example:
+After the first release appears under **[GitHub Releases](https://github.com/Otautahi/pulse-director/releases)**, use the tagged source archive or clone the repository. For example:
 
 ```bash
 cd ~
-git clone https://github.com/Otautahi/pi-device-controller.git
-cd pi-device-controller
+git clone https://github.com/Otautahi/pulse-director.git
+cd pulse-director
 ```
 
 If `git` is unavailable, run `sudo apt install -y git`. **Do not expect a runnable controller in the GitHub repository until the code is released.**
@@ -68,7 +68,7 @@ python3 edge_dashboard.py --simulate --bind 127.0.0.1 --port 8765 --no-print-key
 Leave this terminal open. In another SSH session, retrieve the dashboard key **privately**:
 
 ```bash
-cd ~/pi-device-controller
+cd ~/pulse-director
 cat .edge_dashboard_key
 ```
 
@@ -88,7 +88,7 @@ Then open `http://127.0.0.1:8765` on that Windows PC. Stop simulation with `Ctrl
 4. Start the controller on the Pi, replacing the placeholders:
 
 ```bash
-cd ~/pi-device-controller
+cd ~/pulse-director
 python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP --port 8765 --no-print-key
 ```
 
@@ -105,7 +105,7 @@ You can skip this entire section for LAN-only use.
 3. Save the developer token **privately** on the Pi. Run the `read` line separately and paste the token at its prompt:
 
 ```bash
-cd ~/pi-device-controller
+cd ~/pulse-director
 umask 077
 read -r -s -p 'Developer token: ' EDGE_TOKEN; echo
 ```
@@ -136,7 +136,7 @@ Expected permissions are `600`. **Never share the token, a QR image or a copy of
 Stop the dashboard before changing connection settings. In the Pi terminal, replace both values:
 
 ```bash
-cd ~/pi-device-controller
+cd ~/pulse-director
 EDGE_UID=YOUR_UNIQUE_UID EDGE_PLATFORM='YOUR_EXACT_PLATFORM_NAME' .venv/bin/python edge2_cloud_keeper.py
 ```
 
@@ -145,7 +145,7 @@ Cloud Keeper uses Lovense's Socket.IO API to maintain the pairing connection. If
 If you need to scan it from your PC monitor, in a **separate Windows Command Prompt** copy it from the Pi:
 
 ```cmd
-scp YOUR_PI_USERNAME@YOUR_PI_IP:/home/YOUR_PI_USERNAME/pi-device-controller/edge2_service_pairing_qr.png "%USERPROFILE%\Downloads\edge2_service_pairing_qr.png"
+scp YOUR_PI_USERNAME@YOUR_PI_IP:/home/YOUR_PI_USERNAME/pulse-director/edge2_service_pairing_qr.png "%USERPROFILE%\Downloads\edge2_service_pairing_qr.png"
 ```
 
 Open the image locally, then use Lovense Remote's appropriate **Scan QR** function. Keep the keeper process running while pairing. **Don't upload the QR to an issue or share it in chat.** Some versions of the app may require repeated attempts or reauthorisation.
@@ -153,7 +153,7 @@ Open the image locally, then use Lovense Remote's appropriate **Scan QR** functi
 In a second Pi SSH terminal, check status:
 
 ```bash
-cd ~/pi-device-controller
+cd ~/pulse-director
 python3 -m json.tool .edge_cloud_keeper_status.json
 ```
 
@@ -162,7 +162,7 @@ Look for `"state": "device_connected"` and `"device_connected": true`. If you se
 Once paired, start the dashboard with the same UID:
 
 ```bash
-cd ~/pi-device-controller
+cd ~/pulse-director
 python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP --uid YOUR_UNIQUE_UID --port 8765 --no-print-key
 ```
 
