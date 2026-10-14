@@ -1,6 +1,6 @@
 # Troubleshooting
 
-These checks are for the **Edge 2-only** release candidate. Commands labelled **Pi** run inside an SSH session on the Raspberry Pi; those labelled **Windows** run on your PC.
+These checks are for the **Edge 2-only** release candidate. Commands labelled **Pi** run in an SSH session on your Linux host (originally tested on a Raspberry Pi); those labelled **Windows** run on your PC.
 
 ## Dashboard doesn't open
 
@@ -31,7 +31,7 @@ On the **Pi**:
 
 ```bash
 sudo systemctl status edge2-cloud-keeper --no-pager
-python3 -m json.tool ~/pi-device-controller/.edge_cloud_keeper_status.json
+python3 -m json.tool ~/pulse-director/.edge_cloud_keeper_status.json
 ```
 
 `device_connected: true` is the expected paired state. `pairing_qr_ready` means authorisation is still pending. A missing or stale status can mean Cloud Keeper is stopped or disconnected. **Do not share the status file unredacted.**
@@ -80,4 +80,4 @@ sudo journalctl -u edge2-dashboard -n 30 --no-pager
 sudo journalctl -u edge2-cloud-keeper -n 30 --no-pager
 ```
 
-**Before sharing:** remove tokens, access keys, QR URLs and contents, device identifiers, user IDs, network addresses and any personal details. Never post the whole contents of `~/pi-device-controller` or your home Pi installation.
+**Before sharing:** remove tokens, access keys, QR URLs and contents, device identifiers, user IDs, network addresses and any personal details. Never post the whole contents of `~/pulse-director` or your home Pi installation.
