@@ -25,10 +25,6 @@ PulseDirector can operate a physical device. Treat the ability to log into the d
 - GitHub account names and commit author information can be public even when source files are anonymised. The repository is intentionally hosted under `Otautahi`.
 - Do not put private IP addresses, home addresses, device IDs, login screenshots or unredacted logs in public issues.
 
-## Future development hardware wishlist
-
-An optional wishlist may be introduced to help test more devices. **It is not set up yet.** Before adding it, test the buyer-facing page in a private/incognito browser and ensure it doesn't reveal legal name, street address, email, precise location or shipping details. Gifts must not promise device compatibility or development deadlines.
-
 ## Legal and service considerations
 
 This independent project is not affiliated with Lovense. Developer APIs and third-party distribution are governed by Lovense's rules and can change. Confirm whether developer registration and API access permit a public application before issuing a first release.
