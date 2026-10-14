@@ -79,7 +79,13 @@ See the [full security guide](docs/SECURITY.md) before using remote control or c
 
 **Current status:** v0.1.0 Edge 2-only release candidate; live testing and release review pending. No public release has been issued.
 
-Potential future work: richer random behaviour, battery-reporting improvements, installation automation, and additional device research. If a hardware wishlist is added to help with compatibility testing, it will be optional and reviewed for recipient privacy first. **No gift link or personal delivery information is published here.**
+Potential future work: richer random behaviour, battery-reporting improvements, installation automation, and additional device research.
+
+## Support future hardware development
+
+Pi Device Controller is free, independent, and currently supports **the Lovense Edge 2 only**. Testing other models requires access to real hardware. If you'd like to help with future compatibility research, you can optionally [gift a device through the development wishlist](https://www.lovense.com/wish-list/3h7t6t3).
+
+Gifts are appreciated but do **not** guarantee support for a particular model or a development timeline. This is not affiliated with, sponsored by, or endorsed by Lovense.
 
 ## Contributing
 
