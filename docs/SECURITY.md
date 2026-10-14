@@ -1,6 +1,6 @@
 # Security and privacy
 
-Pi Device Controller can operate a physical device. Treat the ability to log into the dashboard as control access, and take particular care before making any code or screenshots public.
+PulseDirector can operate a physical device. Treat the ability to log into the dashboard as control access, and take particular care before making any code or screenshots public.
 
 ## Protect access
 
