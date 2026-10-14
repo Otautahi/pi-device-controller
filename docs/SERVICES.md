@@ -6,7 +6,7 @@ Both processes use the **same project directory**: the dashboard controls the Ed
 
 ## 1. Edit the sample files
 
-On your Raspberry Pi, from the newly cloned `~/pi-device-controller` directory:
+On your Linux host, from the newly cloned `~/pulse-director` directory:
 
 ```bash
 cp examples/edge2-dashboard.service.example edge2-dashboard.service
