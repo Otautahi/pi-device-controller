@@ -1,10 +1,10 @@
-# Pi Device Controller
+# PulseDirector
 
 ### A free, self-hosted controller for the **Lovense Edge 2**
 
 > **Pre-release · Edge 2 only.** The software is being tested and is **not yet available as a supported public release**. This repository currently hosts project information and documentation. Please wait for a tagged release before following the installation guide with real hardware.
 
-Pi Device Controller is an independent Raspberry Pi project with a phone-friendly web dashboard, independent dual-motor control, custom patterns, and an autonomous pattern engine called **Director**. It works on a home network through Lovense Remote's Game Mode and can optionally use Lovense's remote APIs with a separate Cloud Keeper process.
+PulseDirector is an independent, self-hosted Linux project, initially developed and tested on a Raspberry Pi with a phone-friendly web dashboard, independent dual-motor control, custom patterns, and an autonomous pattern engine called **Director**. It works on a home network through Lovense Remote's Game Mode and can optionally use Lovense's remote APIs with a separate Cloud Keeper process.
 
 **No paid AI service is required.** The Director uses weighted, stateful randomisation—not an AI chatbot or a remotely controlling person.
 
@@ -13,7 +13,7 @@ Pi Device Controller is an independent Raspberry Pi project with a phone-friendl
 | | |
 |---|---|
 | **Supported device** | **Lovense Edge 2 only** |
-| **Platform** | Raspberry Pi / Linux with Python 3 |
+| **Platform** | Linux with Python 3 (initially tested on Raspberry Pi OS) |
 | **Interface** | Mobile-friendly browser dashboard |
 | **Modes** | Waves, pulses, alternating, heartbeat, cascade, and autonomous Director |
 | **Motors** | Independently adjustable Motor 1 and Motor 2 |
@@ -32,7 +32,7 @@ Choose from classic motor patterns, configure Autonomous Director, monitor devic
 
 <p align="center">
   <a href="docs/images/edge2-screenshot-1-desktop-overview.png">
-    <img src="docs/images/edge2-screenshot-1-desktop-overview.png" alt="Complete Pi Device Controller desktop interface, including the mode grid, Autonomous Director, settings and independent motor controls" width="650">
+    <img src="docs/images/edge2-screenshot-1-desktop-overview.png" alt="Complete PulseDirector desktop interface, including the mode grid, Autonomous Director, settings and independent motor controls" width="650">
   </a>
 </p>
 
@@ -129,7 +129,7 @@ Potential future work: richer random behaviour, battery-reporting improvements, 
 
 ## Support future hardware development
 
-Pi Device Controller is free, independent, and currently supports **the Lovense Edge 2 only**. Testing other models requires access to real hardware. If you'd like to help with future compatibility research, you can optionally [gift a device through the development wishlist](https://www.lovense.com/wish-list/3h7t6t3).
+PulseDirector is free, independent, and currently supports **the Lovense Edge 2 only**. Testing other models requires access to real hardware. If you'd like to help with future compatibility research, you can optionally [gift a device through the development wishlist](https://www.lovense.com/wish-list/3h7t6t3).
 
 Gifts are appreciated but do **not** guarantee support for a particular model or a development timeline. This is not affiliated with, sponsored by, or endorsed by Lovense.
 
