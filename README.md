@@ -86,7 +86,7 @@ Browser on your phone or computer
              |
       Private home LAN or VPN
              |
- Raspberry Pi: Edge 2 Dashboard
+ Linux host: PulseDirector dashboard
          /             \
    Home LAN          Lovense HTTPS cloud
      |                     |
