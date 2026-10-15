@@ -6,7 +6,8 @@
 - [x] Remove cloud API, Cloud Keeper, cloud pairing, tokens and cloud UI states from this edition
 - [x] Remove personal network addresses and absolute installation paths from the published source
 - [x] Include LAN-only Edge 2 model checks that reject zero, multiple and unsupported device reports
-- [x] Add offline tests; run all **18 tests** successfully on the owner's Pi
+- [x] Run the original **18 offline tests** successfully on the owner's Pi
+- [x] Add **8 more offline safety regressions** (26 tests total); pass in GitHub Actions on Python 3.11 and 3.13
 - [x] Run the GitHub Actions offline test matrix successfully on the public candidate branch
 - [x] Add README, installation and security guidance, changelog and MIT licence
 - [x] Obtain owner's approval to publish the source branch
@@ -26,6 +27,7 @@
 
 ## Before a stable GitHub Release
 
+- [ ] Follow the [off-body hardware test guide](HARDWARE_TEST.md) and record sanitized pass/fail results
 - [ ] Confirm live **GetToys** response identifies Edge 2 on actual firmware
 - [ ] Physically verify both motors, independent Stop, manual mode and timer expiry **off-body**
 - [ ] Test loss/recovery of Wi-Fi, Bluetooth and phone connectivity; ensure no uncommanded restart
