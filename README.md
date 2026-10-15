@@ -61,9 +61,20 @@ Open `http://YOUR_PI_LAN_IP:8765` on a device connected to the same trusted LAN 
 
 ## What it looks like
 
-The release includes a responsive dark-themed dashboard with session status, telemetry, pattern library, Autonomous Director, session limits, two manual motor controls and a prominent Stop control.
+These are screenshots of the actual v4.5 LAN dashboard rendered with **simulated data only**. No physical Edge 2 was connected, and no personal addresses, device IDs or access keys appear.
 
-LAN-only desktop and mobile screenshots are being prepared from **simulated interface data**; no real device identifiers or network settings are used. We will add them here after their public asset review. Previous cloud-mode screenshots are deliberately excluded. See the [screenshot review folder](docs/images/README.md).
+**Desktop — complete interface**
+
+[![PulseDirector LAN Edition desktop overview — simulated UI](docs/images/lan-desktop-overview.png)](docs/images/lan-desktop-overview.png)
+
+<details>
+<summary><strong>Mobile — Autonomous Director settings</strong></summary>
+
+![PulseDirector LAN Edition mobile Autonomous Director panel — simulated UI](docs/images/lan-mobile-director.png)
+
+</details>
+
+The mobile image shows the Director panel rather than an entire scrolling phone screen. Older cloud-mode screenshots are excluded. See [screenshot notes](docs/images/README.md).
 
 ## Architecture
 
