@@ -57,7 +57,7 @@ python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP
 
 Open `http://YOUR_PI_LAN_IP:8765` on a device connected to the same trusted LAN and enter the access key printed in the terminal. The generated key is stored locally in `.edge_dashboard_key`; **never commit or share it**.
 
-**[Full installation guide](docs/INSTALL.md)** · **[Security and privacy](docs/SECURITY.md)** · **[Troubleshooting](docs/TROUBLESHOOTING.md)**
+**[Full installation guide](docs/INSTALL.md)** · **[Off-body hardware test](docs/HARDWARE_TEST.md)** · **[Security and privacy](docs/SECURITY.md)** · **[Troubleshooting](docs/TROUBLESHOOTING.md)**
 
 ## What it looks like
 
