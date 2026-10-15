@@ -63,7 +63,7 @@ Open `http://YOUR_PI_LAN_IP:8765` on a device connected to the same trusted LAN 
 
 The release includes a responsive dark-themed dashboard with session status, telemetry, pattern library, Autonomous Director, session limits, two manual motor controls and a prominent Stop control.
 
-LAN-only desktop and mobile screenshots are being prepared from **simulated interface data**; no real device identifiers or network settings are used. We will add them here after their public asset review. Previous cloud-mode screenshots are deliberately excluded.
+LAN-only desktop and mobile screenshots are being prepared from **simulated interface data**; no real device identifiers or network settings are used. We will add them here after their public asset review. Previous cloud-mode screenshots are deliberately excluded. See the [screenshot review folder](docs/images/README.md).
 
 ## Architecture
 
@@ -99,7 +99,7 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 **Possible later work (not promised):** expanded device telemetry, smoother setup, user feedback on Director sequencing, and separately validated Max 2 support. The public v4.5 LAN edition does **not** support Max 2.
 
-Contributions and bug reports are welcome; please **remove logs, addresses, access keys, pairing data and device IDs** before sharing.
+[Contributions and bug reports](CONTRIBUTING.md) are welcome; please **remove logs, addresses, access keys, pairing data and device IDs** before sharing.
 
 ## Licence and independence
 
