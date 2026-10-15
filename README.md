@@ -1,142 +1,64 @@
-# PulseDirector
+# PulseDirector v4.5 — LAN Edition (release candidate)
 
-### A free, self-hosted controller for the **Lovense Edge 2**
+A self-hosted, browser-based **Lovense Edge 2** controller for Linux / Raspberry Pi, using Lovense Remote's **local Game Mode** connection. No developer token, pairing QR, remote pairing service or online control backend is included.
 
-> **Pre-release · Edge 2 only.** The software is being tested and is **not yet available as a supported public release**. This repository currently hosts project information and documentation. Please wait for a tagged release before following the installation guide with real hardware.
+> **Release candidate, not a supported hardware-tested release.** The LAN-only conversion has been tested offline against simulation and synthetic device replies; it has **not yet been verified on an actual Edge 2**. Do not expose the dashboard to the internet. Test off-body first and keep a physical way to stop or disconnect the device.
 
-PulseDirector is an independent, self-hosted Linux project, initially developed and tested on a Raspberry Pi with a phone-friendly web dashboard, independent dual-motor control, custom patterns, and an autonomous pattern engine called **Director**. It works on a home network through Lovense Remote's Game Mode and can optionally use Lovense's remote APIs with a separate Cloud Keeper process.
+## Features
 
-**No paid AI service is required.** The Director uses weighted, stateful randomisation—not an AI chatbot or a remotely controlling person.
+- Independent Motor 1 / Motor 2 commands, timed sessions, manual controls and a Stop button
+- 20+ modes including Autonomous Director: Confident, Unpredictable, Patient, Playful, Progressive
+- Director flows: High energy, Balanced, Build, Waves; Surprise levels 1–5
+- Scene changes, deliberate holds, theme callbacks and live intent/energy display
+- Preset caps for intensity, speed, duration and secondary motor contribution
+- No additional Python dependencies; Python 3 standard library
+- Optional `--simulate` mode for interface checks without sending commands
 
-## At a glance
+## Quick start
 
-| | |
-|---|---|
-| **Supported device** | **Lovense Edge 2 only** |
-| **Platform** | Linux with Python 3 (initially tested on Raspberry Pi OS) |
-| **Interface** | Mobile-friendly browser dashboard |
-| **Modes** | Waves, pulses, alternating, heartbeat, cascade, and autonomous Director |
-| **Motors** | Independently adjustable Motor 1 and Motor 2 |
-| **Session length** | Up to 20 minutes with timed Stop commands |
-| **At home** | Lovense Remote Game Mode on the same LAN |
-| **Away from home** | Private VPN for the dashboard + optional Lovense HTTPS cloud control |
-| **Cost** | Free software; API availability and provider terms may change |
+```bash
+# In a new directory containing edge_dashboard.py and edge2_director.py:
+python3 -m unittest discover -s tests -v
+python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP
+```
 
-## Screenshots
+On your phone, enable **Lovense Remote → Game Mode**, find the phone's local IPv4 address, and keep that phone on the **same trusted network** as the Pi. Open `http://YOUR_PI_LAN_IP:8765` from a browser on the same network. The access key is printed at first start and saved to `.edge_dashboard_key` alongside the application. Do not publish it.
 
-A look at the **Edge 2-only dashboard**, rendered from the v4.2 interface with **simulated demo data**. Screenshots show the complete interface, not cropped sections. **Click an image to view it full-size.**
+For an offline simulator on the Pi only:
 
-### Desktop dashboard
+```bash
+python3 edge_dashboard.py --simulate
+# Dashboard: http://127.0.0.1:8765, from that machine
+```
 
-Choose from classic motor patterns, configure Autonomous Director, monitor device status, and use manual motor controls.
+See [installation instructions](docs/INSTALL.md), [security notes](docs/SECURITY.md), and [release checklist](docs/RELEASE_CHECKLIST.md).
 
-<p align="center">
-  <a href="docs/images/edge2-screenshot-1-desktop-overview.png">
-    <img src="docs/images/edge2-screenshot-1-desktop-overview.png" alt="Complete PulseDirector desktop interface, including the mode grid, Autonomous Director, settings and independent motor controls" width="650">
-  </a>
-</p>
+## Device restrictions
 
-<details>
-<summary><strong>📱 Mobile — Autonomous Director running</strong></summary>
+The LAN controller **accepts only a single connected device that Game Mode identifies by its model as `Edge` or `Edge 2`**. It refuses unknown models and concurrent devices. A user-defined nickname by itself does not count as device verification. This protection needs testing against real firmware responses before public release; different versions may report their names differently.
 
-<br>
-
-See a timed autonomous session, live motor levels, and the phone-friendly layout.
-
-<p align="center">
-  <a href="docs/images/edge2-screenshot-2-mobile-autonomous.png">
-    <img src="docs/images/edge2-screenshot-2-mobile-autonomous.png" alt="Full mobile dashboard displaying a simulated active Autonomous Director session" width="320">
-  </a>
-</p>
-
-</details>
-
-<details>
-<summary><strong>☁️ Remote control — Cloud-connected session</strong></summary>
-
-<br>
-
-A simulated remote session with Cloud Keeper status, connection details and the last reported battery level.
-
-<p align="center">
-  <a href="docs/images/edge2-screenshot-3-cloud-connected.png">
-    <img src="docs/images/edge2-screenshot-3-cloud-connected.png" alt="Complete desktop dashboard showing a simulated cloud-connected Edge 2 session and battery information" width="650">
-  </a>
-</p>
-
-</details>
-
-*All screenshots are demonstrations, not recordings of an active device. They contain no real user credentials, personal IP addresses or private device identifiers.*
-
-## The autonomous Director
-
-The Director varies two-motor intensity and rhythm over time rather than looping through fixed patterns. Four behaviours are planned for the first release:
-
-- **Unpredictable:** balanced variation without a fixed repeating sequence.
-- **Patient:** longer phases with breathing room and pauses.
-- **Playful:** more contrast, accents, and changes in rhythm.
-- **Progressive:** gradual variation over the session.
-
-Intensity, speed, surprise, Motor 2 contribution and the session timer remain under your control. Motor 1 is the lead channel in the default pattern designs. Direct manual control of either motor remains available.
+**Max 2 and other devices are not supported**. Disconnect them while testing. There is no multi-device feature in this edition.
 
 ## How it works
 
 ```text
-Browser on your phone or computer
-             |
-      Private home LAN or VPN
-             |
- Linux host: PulseDirector dashboard
-         /             \
-   Home LAN          Lovense HTTPS cloud
-     |                     |
-Lovense Remote       Cloud Keeper maintains pairing
-     |                     |
-     +-------- Phone + Bluetooth --------+
-                        |
-                  Lovense Edge 2
+Browser on trusted LAN / private VPN
+         |
+PulseDirector dashboard on Linux / Raspberry Pi
+         |
+Local Lovense Game Mode HTTP API (phone IPv4:20010)
+         |
+Phone running Lovense Remote → Bluetooth → Edge 2
 ```
 
-Cloud Keeper watches pairing and reports the **last known** battery and connectivity information; it does not send motor commands. Cloud status is not proof that every command was physically delivered.
+The Director is a local rule-based scene planner; it does not sense reactions or represent a person controlling the device. Telemetry is reported by the phone app, not independently measured by PulseDirector. A successful API response does not prove a command physically reached a motor.
 
-## Getting started
+## Privacy
 
-**The controller source and installation package are not published yet.** Once a tested release is available, start with the **[step-by-step installation guide](docs/INSTALL.md)**. It covers Windows-to-Pi SSH, Python setup, home-LAN control, developer-token handling, QR pairing, system services and accessing the dashboard through a VPN.
+Do not commit `.edge_dashboard_key`, local logs, screenshots of active device IDs, IP-specific configs, or backups. The distribution intentionally uses **placeholders** in documentation and requires entering your own phone and Pi LAN addresses at runtime. A clean `.gitignore` helps, but inspect staged files and Git history before publishing.
 
-Other guides: [Troubleshooting](docs/TROUBLESHOOTING.md) · [Security and privacy](docs/SECURITY.md) · [Service setup](docs/SERVICES.md) · [Release checklist](docs/RELEASE_CHECKLIST.md).
+## Licence and release status
 
-## Supported devices — important
+The PulseDirector source is provided under the [MIT licence](LICENSE). The Lovense software, services, trademarks and protocols are not licensed by PulseDirector. Third-party API/distribution terms may affect publication or operation of software using the Lovense API; check current provider requirements before public redistribution. See [release checklist](docs/RELEASE_CHECKLIST.md).
 
-**Only one Lovense Edge 2 is supported.** This release is **not for Max 2**, other Lovense models, or simultaneous multi-device sessions. The candidate includes checks intended to reject unsupported or ambiguous device reports, but this protection has not been exhaustively validated across firmware versions. Disconnect other devices before testing.
-
-Additional models, including Max 2, may be investigated in future **separate, clearly labelled** releases after real-device testing. They are not currently promised or supported.
-
-## Safety and privacy
-
-- Test with the device **off-body** first and at a low intensity. Have an independent physical way to disconnect it.
-- Keep the dashboard on a trusted LAN or private VPN. **Never forward its plain-HTTP port (default `8765`) to the public internet.**
-- Keep API tokens, login keys, QR codes, device IDs, personal addresses and private configuration **out of GitHub**.
-- Timed commands and a Stop button reduce risk but cannot guarantee immediate stopping during Bluetooth, phone, or internet failure.
-- The dashboard can show **stale battery data** in cloud mode. Treat the timestamp as important and consult Lovense Remote for the freshest available value.
-
-See the [full security guide](docs/SECURITY.md) before using remote control or contributing.
-
-## Status and roadmap
-
-**Current status:** v0.1.0 Edge 2-only release candidate; live testing and release review pending. No public release has been issued.
-
-Potential future work: richer random behaviour, battery-reporting improvements, installation automation, and additional device research.
-
-## Support future hardware development
-
-PulseDirector is free, independent, and currently supports **the Lovense Edge 2 only**. Testing other models requires access to real hardware. If you'd like to help with future compatibility research, you can optionally [gift a device through the development wishlist](https://www.lovense.com/wish-list/3h7t6t3).
-
-Gifts are appreciated but do **not** guarantee support for a particular model or a development timeline. This is not affiliated with, sponsored by, or endorsed by Lovense.
-
-## Contributing
-
-Once the first tested release is available, feedback, bug reports and documentation improvements will be welcome. Please don't submit credentials, pairing QR images, logs containing identifiable information, or unverified compatibility claims. Testing on other toy models is **not** supported by the Edge 2 release.
-
-## Licence and attribution
-
-The planned open-source licence is **MIT**, subject to final confirmation at release. This is an **independent community project**, not created, sponsored, approved or endorsed by Lovense. Lovense and Edge 2 are trademarks of their respective owner. Use of Lovense's APIs is governed by their own terms and availability.
+This is an independent community project and is not affiliated with or endorsed by Lovense.

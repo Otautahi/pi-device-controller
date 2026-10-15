@@ -1,20 +1,18 @@
-# First release checklist (not yet published)
+# LAN Edition public release checklist
 
-- [ ] Confirm only an Edge 2 is connected and unknown/Max 2/multiple devices are refused on LAN and cloud
-- [ ] v4.2 tested on actual Edge 2 after upgrade (two independent motors, Start and Stop)
-- [ ] Autonomous Director run off-body at low intensity with multiple patterns
-- [ ] 20-minute automatic stop and emergency Stop physically verified
-- [ ] Home Wi-Fi to cloud switching verified; cloud requires pairing/online session
-- [ ] Connection-loss handling physically tested; no unexpected restart on reconnect
-- [ ] Battery UI checked and stale values clearly explained
-- [ ] Pi-hole, WireGuard and other background services unaffected
-- [ ] No private values in source: IP, API token, password, personal UID, device IDs, QR, logs, backup files
-- [ ] Confirm GitHub repository owner and Git commit author metadata are acceptable publicly (cannot hide a personal account via source scrubbing)
-- [ ] Optional wishlist checked from an incognito/public buyer view; no identifying address/name details
-- [ ] `.gitignore`, staged contents and Git history reviewed for leaks
-- [ ] Documentation checked by someone who has not installed the software before
-- [ ] Confirm Lovense API/distribution requirements for non-personal users
-- [ ] Confirm MIT licence before release (project name: PulseDirector)
-- [ ] GitHub release/commit only after owner's go-ahead
+- [x] Split working copy from Pi's installed controller; do not touch existing services
+- [x] Strip all cloud-specific classes, routes, token files and UI diagnostics
+- [x] Remove Pi-specific default addresses, usernames and absolute service paths
+- [x] Add local device validation and reject multiple / unsupported devices
+- [x] Add offline unit and simulated HTTP tests
+- [ ] Test live GetToys model/status formats on actual Edge 2 firmware; fix incompatibilities
+- [ ] Test Motor 1, Motor 2, independent Stop and timed expiry off-body
+- [ ] Test connection-loss behaviour and recovery, including concurrent Start/Stop
+- [ ] Confirm independent physical stop remains available after Wi-Fi / Bluetooth loss
+- [ ] Confirm the published files, screenshots, docs and *history* contain no secrets or personal IP addresses
+- [x] Add an MIT licence to the GitHub-ready candidate (verify copyright attribution with owner)
+- [ ] Check Lovense third-party API redistribution / usage terms
+- [ ] Review README and test instructions on clean Raspberry Pi OS installation
+- [ ] Obtain project owner's explicit approval before a public GitHub push/tagged release
 
-Do not publish the live contents of the Raspberry Pi's `~/edge-ai` directory.
+**Do not publish the original working installation directory.**
