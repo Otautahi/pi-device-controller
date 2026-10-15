@@ -1,12 +1,10 @@
-# Release screenshots
+# LAN Edition screenshots
 
-Place reviewed **simulation-only** screenshots of the LAN Edition in this folder.
+These images show the **actual PulseDirector v4.5 LAN Edition dashboard** rendered using **simulated data only**. They do not depict an active device session and contain no personal network address, dashboard access key, token or real device identifier.
 
-Expected image names:
+- [Desktop — full dashboard](lan-desktop-overview.png) (PNG, full scrolling interface)
+- [Mobile — Autonomous Director panel](lan-mobile-director.png) (PNG, Director section only)
 
-- `lan-desktop-overview.png` — full desktop dashboard with no live device
-- `lan-mobile-director.png` — mobile Director settings, no live device
+Screenshots were reviewed before publication and optimized to reduce file size. They show the public LAN interface, not the private hybrid/cloud build. If updating screenshots in future, use simulated data, review for personal information, and keep the LAN-only description accurate.
 
-Screenshots must show **no** personal IP address, hostname, dashboard key, device ID, token, real session log or cloud-only UI. Clearly label demonstration data as simulated. These images are not required to run PulseDirector.
-
-After uploading both assets to this branch, update the main [README](../../README.md) with image links. Do not link files before they exist.
+See the [main README](../../README.md) for usage, safety considerations and installation instructions.
