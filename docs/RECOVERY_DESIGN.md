@@ -12,6 +12,10 @@
 6. The prominent Stop button remains usable even while the dashboard reports idle or the recovery worker is active, allowing an immediate additional Stop attempt whenever the phone can receive it.
 7. While a session is active the telemetry worker checks device connection roughly every two seconds (instead of every 20 seconds). A motor command failure usually triggers detection even sooner.
 
+## Concurrent Stop priority
+
+An offline regression reproduced an additional race: if an explicit Stop arrived while a Start or motor-test request was waiting for the device-readiness response, the older code could subsequently start the session despite that Stop. The fix records a Stop epoch before validation and cancels pending Start/Test requests if any explicit Stop, connection-failure Stop, timeout Stop or shutdown occurred in the meantime. Internal pattern changes issue their own Stop without hiding a separate user's Stop. Five deterministic tests cover both idle and active pattern-switch cases; a later fresh Start remains possible after Stop, provided the fault latch permits it. These tests do not substitute for physical or adversarial concurrency validation.
+
 ## Important limitations
 
 - **No Stop can be delivered while the phone is unreachable or Bluetooth is disconnected.** A resumed command may activate motors before the first post-reconnect Stop reaches the toy. Automatic retry is mitigation, not prevention of the initial burst.
@@ -28,12 +32,13 @@
 - [x] Phone reachable while Bluetooth disconnected: no false Stop acknowledgements (offline)
 - [x] Phone reporting connected but refusing Stop: no false recovery (offline)
 - [x] Normal manual Stop continues to work (offline)
-- [x] Confirm full GitHub Actions test suite on Python 3.11 and 3.13 (34 offline tests)
+- [x] Confirm full GitHub Actions test suite on Python 3.11 and 3.13 (39 offline tests, including five concurrent Stop/Start regressions)
 - [x] First off-body check on actual Edge 2, at low intensity, with power button accessible (owner-reported, 16 October 2026)
 - [x] First Bluetooth disconnect/reconnect: error 402 triggered fault lock; after reconnect the toy briefly vibrated, then stopped **automatically** with no manual Stop; dashboard reported phone-API Stop accepted (owner-reported)
 - [x] Verify owner acknowledgement: once API recovery was reported, clicking **Acknowledge after checking physical device** cleared the red warning and returned the dashboard to normal (owner-reported, 16 October 2026)
 - [ ] Repeat controlled off-body failure/reconnection tests under varied timing
-- [ ] Recheck against phone/app/firmware variability and concurrent API requests before release
+- [x] Test concurrent Stop vs in-progress Start, motor Test and pattern-switch validation using deterministic offline races (5 new tests). An explicit Stop now invalidates pending sessions, so a stale Start cannot reactivate motor commands
+- [ ] Test additional phone/app/firmware variability and further real-world connection failures before release
 
 ### Observed physical behaviour — 16 October 2026
 
