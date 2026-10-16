@@ -10,7 +10,7 @@ permissions:
 jobs:
   prerelease:
     # Strict one-time merge-commit guard: ordinary future pushes do not publish.
-    if: github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'Merge PR #1: PulseDirector LAN v4.5.0 experimental prerelease')
+    if: "${{ github.ref == 'refs/heads/main' && startsWith(github.event.head_commit.message, 'Merge PR #1: PulseDirector LAN v4.5.0 experimental prerelease') }}"
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
