@@ -1,6 +1,6 @@
 # Edge 2 hardware smoke test — v4.5.0 LAN RC1
 
-**Status:** Core off-body smoke test completed on 16 October 2026, as reported by the project owner. A Wi-Fi interruption and reconnection test also passed; **Bluetooth interruption/reconnect failed**; unintended vibration occurred on reconnection. **Do not repeat physical testing or use on-body pending investigation.** Concurrent-command testing remains outstanding. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
+**Status (updated 17 October 2026):** The original build passed the basic off-body smoke test but **failed Bluetooth reconnection** (persistent unintended vibration). The corrected candidate, subsequently merged into this branch, was retested off-body: Bluetooth reconnection caused **brief resumed vibration followed by automatic Stop**; the dashboard fault latch and acknowledgement worked. Wi-Fi loss/reconnect also stopped motors and recovered without resumed vibration. **Thirty-nine offline tests** pass, including five Stop/Start concurrency tests. These are owner reports on one Edge 2, not broad physical fail-safe certification. Keep physical shutdown available; do not consider this a production-grade emergency Stop.
 
 ## Before testing
 
@@ -20,7 +20,7 @@ git clone --branch release/v4.5.0-lan-rc1 --single-branch \
   https://github.com/Otautahi/pulse-director.git pulse-director-lan-test
 ```
 
-Run the offline tests (currently 26 tests across the suite):
+Run the offline tests (39 tests in the updated candidate):
 
 ```bash
 cd ~/pulse-director-lan-test
@@ -48,7 +48,7 @@ Open `http://YOUR_PI_LAN_IP:8766` in a browser on your trusted LAN and enter the
 - [x] **Timeout:** 30-second Autonomous Director session ended automatically; motors stopped. The dashboard's minimum timer setting is 0.5 min (30 seconds).
 - [x] **Director:** ran with Confident / High energy / Surprise 4/5 and maximum 5/20; live intent display worked and session expired at 30 seconds.
 
-**STOP: Do not repeat the Bluetooth disconnection/reconnection test with this candidate.** It has produced unexpected vibration after reconnection. Only run further physical tests with an explicit revised test plan after the cause has been investigated. A network outage can prevent remote Stop delivery.
+**Bluetooth interruption warning:** The older 16 October candidate displayed 00:00 yet allowed persistent vibration after reconnect. The updated candidate mitigated this with automatic Stop but still allowed a **brief reconnect vibration**. Only perform deliberately controlled tests off-body at low intensity with the physical power button accessible. A network outage prevents Stop delivery until communication resumes. See [recovery design](RECOVERY_DESIGN.md).
 
 ## Observed results — 16 October 2026
 
@@ -58,7 +58,13 @@ The owner cloned the exact public release candidate into a separate test directo
 
 **Bluetooth interruption/reconnect FAILED — 16 October 2026 (owner reported):** The motors stopped immediately when phone Bluetooth was switched off, and the dashboard showed `Connection error: Lovense returned: {'code': 402, 'type': 'OK'}` with `00:00` remaining. **Turning Bluetooth back on unexpectedly restarted vibration (not the previous Wave pattern), without an intentional new Start. The dashboard remained unchanged at its connection-error/00:00 state and did not indicate that the toy was vibrating. The vibration persisted until the owner pressed the dashboard Stop control, which successfully stopped it.** The owner confirmed that this successful manual Stop was issued from the **public LAN test dashboard on port 8766**, not the private dashboard. This is a release-blocking failure: [issue #2](https://github.com/Otautahi/pulse-director/issues/2). After the successful manual Stop, the toy was physically powered off, Game Mode was disabled and the LAN test server was stopped. Do not repeat on-body. The precise cause (phone app, toy firmware, API commands, or another source) is not yet known.
 
-**Not yet tested:** simultaneous Start/Stop races, other firmware/network conditions, independent physical-stop fallback under outage. Passing this smoke test does not establish a guaranteed emergency stop or full hardware compatibility.
+**Not yet validated on hardware:** adversarial concurrent Start/Stop requests, multiple repeated interruptions/timing conditions, other app/firmware combinations, independent physical-stop fallback under outage. Five deterministic concurrent Start/Stop tests passed offline; this is not a physical concurrency guarantee. Passing the smoke test does not establish a guaranteed emergency Stop or full hardware compatibility.
+
+## Additional off-body recovery tests — fixed candidate
+
+**Bluetooth (16 October 2026, owner-reported):** With a low-intensity Wave session active, switching off phone Bluetooth ended the session and triggered Lovense error 402 and a red fault warning. After Bluetooth was restored, the toy **vibrated briefly and then stopped automatically**, without manual Stop. The phone API subsequently acknowledged recovery Stop requests; the user physically checked the toy and confirmed the acknowledgement control cleared the warning. This is one mitigation demonstration, not proof that reconnection is free of unwanted motion.
+
+**Wi-Fi (17 October 2026, owner-reported):** After pulling the updated 39-test build, phone Wi-Fi was disabled during an off-body session. Motors stopped, and red connection-fault warnings appeared. When Wi-Fi returned, motors **stayed stopped**; automatic recovery finished and acknowledging the warning restored controls. The user ran all 39 offline tests successfully on the Pi. This confirms a single controlled LAN fault scenario, not a guaranteed response across all network conditions.
 
 ## Finish safely
 
