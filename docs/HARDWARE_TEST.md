@@ -1,6 +1,6 @@
 # Edge 2 hardware smoke test — v4.5.0 LAN RC1
 
-**Status:** Core off-body smoke test completed on 16 October 2026, as reported by the project owner. A Wi-Fi interruption and reconnection test also passed; Bluetooth interruption/recovery and concurrency tests remain outstanding. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
+**Status:** Core off-body smoke test completed on 16 October 2026, as reported by the project owner. A Wi-Fi interruption and reconnection test also passed; **Bluetooth interruption/reconnect failed**; unintended vibration occurred on reconnection. **Do not repeat physical testing or use on-body pending investigation.** Concurrent-command testing remains outstanding. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
 
 ## Before testing
 
@@ -48,7 +48,7 @@ Open `http://YOUR_PI_LAN_IP:8766` in a browser on your trusted LAN and enter the
 - [x] **Timeout:** 30-second Autonomous Director session ended automatically; motors stopped. The dashboard's minimum timer setting is 0.5 min (30 seconds).
 - [x] **Director:** ran with Confident / High energy / Surprise 4/5 and maximum 5/20; live intent display worked and session expired at 30 seconds.
 
-Optional, **only after the above works** and with the device off-body: disrupt phone Wi-Fi or Bluetooth and verify the dashboard stops attempting the session; physically switch the toy off if Stop cannot reach it. A network outage may prevent remote Stop delivery.
+**STOP: Do not repeat the Bluetooth disconnection/reconnection test with this candidate.** It has produced unexpected vibration after reconnection. Only run further physical tests with an explicit revised test plan after the cause has been investigated. A network outage can prevent remote Stop delivery.
 
 ## Observed results — 16 October 2026
 
@@ -56,7 +56,9 @@ The owner cloned the exact public release candidate into a separate test directo
 
 **Wi-Fi loss/recovery — 16 October 2026 (owner reported):** During an off-body Wave session, Wi-Fi was disabled on the phone running Lovense Remote. The owner reported that the motors stopped immediately and **did not restart when Wi-Fi was re-enabled**. Exact dashboard state/error text and stop latency were not independently measured. This result covers one real Wi-Fi interruption scenario, not all possible network outages.
 
-**Not yet tested:** Bluetooth interruption/recovery, simultaneous Start/Stop races, other firmware/network conditions, independent physical-stop fallback under outage. Passing this smoke test does not establish a guaranteed emergency stop or full hardware compatibility.
+**Bluetooth interruption/reconnect FAILED — 16 October 2026 (owner reported):** The motors stopped immediately when phone Bluetooth was switched off, and the dashboard showed `Connection error: Lovense returned: {'code': 402, 'type': 'OK'}` with `00:00` remaining. **Turning Bluetooth back on unexpectedly restarted vibration (not the previous Wave pattern), without an intentional new Start.** This is a release-blocking failure: [issue #2](https://github.com/Otautahi/pulse-director/issues/2). Do not repeat on-body. The precise cause (phone app, toy firmware, API commands, or another source) is not yet known.
+
+**Not yet tested:** simultaneous Start/Stop races, other firmware/network conditions, independent physical-stop fallback under outage. Passing this smoke test does not establish a guaranteed emergency stop or full hardware compatibility.
 
 ## Finish safely
 
