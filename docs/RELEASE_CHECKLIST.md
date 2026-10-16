@@ -7,8 +7,8 @@
 - [x] Remove personal network addresses and absolute installation paths from the published source
 - [x] Include LAN-only Edge 2 model checks that reject zero, multiple and unsupported device reports
 - [x] Run the original **18 offline tests** successfully on the owner's Pi
-- [x] Add **8 more offline safety regressions** (26 tests total); pass in GitHub Actions on Python 3.11 and 3.13
-- [x] Run the GitHub Actions offline test matrix successfully on the public candidate branch
+- [x] Add 8 safety regression tests (26 total initially), then 8 recovery tests and 5 concurrency tests (**39 total**), passing in GitHub Actions across Python 3.10–3.13
+- [x] Run the GitHub Actions offline test matrix successfully on the public candidate branch; **39 tests each on Python 3.10/3.11/3.12/3.13** (17 October 2026)
 - [x] Add README, installation and security guidance, changelog and MIT licence
 - [x] Obtain owner's approval to publish the source branch
 - [x] Push candidate to public branch `release/v4.5.0-lan-rc1`
@@ -35,7 +35,7 @@
 - [x] Test **phone Wi-Fi interruption/reconnection** during an active session; owner reported immediate motor stop and no automatic restart on reconnect (16 October 2026)
 - [x] **Mitigation retested on fix branch (16 October 2026):** Original build had persistent vibration after Bluetooth reconnect (Lovense 402); fix branch observed brief reconnect vibration followed by **automatic Stop**, fault warning and successful manual acknowledgement. [Issue #2](https://github.com/Otautahi/pulse-director/issues/2) remains open for residual risk and broader validation.
 - [x] **Wi-Fi retested on updated fix branch (17 October 2026):** motors stopped on Wi-Fi loss and stayed stopped after reconnection; automatic Stop recovery completed; acknowledgement restored controls (owner-reported).
-- [x] **Concurrent Stop/Start and Stop/motor-test** offline regression tests added; all 39 tests pass on Python 3.11 and 3.13 and on owner's Pi.
+- [x] **Concurrent Stop/Start and Stop/motor-test** offline regression tests added; all 39 tests pass on Python 3.10–3.13 in GitHub Actions and on owner's Pi.
 - [ ] **Before release:** review residual brief Bluetooth reconnect vibration, verify relevant vendor terms, fresh-install and final code security review; obtain explicit merge/release approval. The dashboard cannot guarantee physical Stop during disconnection.
 - [x] Test simulated concurrent Start/Stop requests in deterministic offline regressions (5 tests)
 - [ ] Validate simultaneous Start/Stop and physical disconnect fallback on hardware if safely possible
