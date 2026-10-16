@@ -31,7 +31,7 @@ A free, self-hosted, browser-based controller for **one Lovense Edge 2**, runnin
 
 The Autonomous Director is a **local, rule-based controller**, not a remote human or a model that can sense reactions. Its status messages describe programmed decisions; they do not imply feedback from your body or a live operator.
 
-**Hardware verification:** One Edge 2 was tested off-body with both motors, timed Director sessions, manual Stop, Bluetooth/Wi-Fi loss and recovery. The owner ran 39 offline tests; GitHub Actions passed Python 3.11 and 3.13. The concurrent Start/Stop protection is tested offline only. These tests cannot guarantee physical stopping under every fault.
+**Hardware verification:** One Edge 2 was tested off-body with both motors, timed Director sessions, manual Stop, Bluetooth/Wi-Fi loss and recovery. The owner ran 39 offline tests on the Pi before the final malformed-response guard; the latest **40 offline tests** pass in GitHub Actions on Python 3.10, 3.11, 3.12 and 3.13. The concurrent Start/Stop protection is tested offline only. These tests cannot guarantee physical stopping under every fault.
 
 ## Quick start on Raspberry Pi / Linux
 
@@ -108,7 +108,7 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 ## Project status and roadmap
 
-**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with 39 automated offline tests and limited real-device validation. The `main` branch remains unchanged; [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1) is held for legal and final-release checks.
+**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with 40 automated offline tests in GitHub Actions and limited real-device validation. The `main` branch remains unchanged; [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1) is held for legal and final-release checks.
 
 **Before a stable tag:** clarify [Lovense API redistribution terms](https://github.com/Otautahi/pulse-director/issues/4), finish fresh-install and privacy/security review, assess residual [Bluetooth reconnect risk](https://github.com/Otautahi/pulse-director/issues/2), and obtain final owner approval. Do not treat the observed automatic Stop on reconnect as guaranteed. See [hardware results](docs/HARDWARE_TEST.md).
 
