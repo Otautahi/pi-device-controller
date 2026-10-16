@@ -8,9 +8,9 @@ A free, self-hosted, browser-based controller for **one Lovense Edge 2**, runnin
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 [![MIT licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
-> **EXPERIMENTAL CONNECTION-RECOVERY FIX — NOT A STABLE RELEASE:** The original LAN release candidate allowed persistent vibration after Bluetooth reconnect. This fix branch automatically retries Stop after connection recovery and locks the session after a fault. **One off-body Edge 2 test on 16 October 2026 observed a brief vibration on reconnect, followed by automatic stopping without a manual Stop.** The physical state is not independently sensed by the dashboard. More testing and review remain necessary. Do not claim zero unexpected vibration or guaranteed fail-safe Stop. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) and the [recovery test record](docs/RECOVERY_DESIGN.md).
+> **EXPERIMENTAL RELEASE CANDIDATE — NOT A STABLE RELEASE:** The original candidate allowed vibration to resume continuously after Bluetooth reconnect. The updated candidate automatically retries Stop on reconnection and locks the session after a fault. In one off-body test the Edge 2 **vibrated briefly on reconnect, then stopped automatically**; on a separate Wi-Fi interruption test it stayed stopped. These observations are not proof of a physical fail-safe: communication loss can prevent remote Stop. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) and [recovery validation](docs/RECOVERY_DESIGN.md).
 
-> **Release candidate — earlier limited hardware validation only.** On 16 October 2026, the owner verified one real Edge 2 off-body: detection, both motors, Autonomous Director, 30-second automatic expiry, and Stop during an active session. A single phone Wi-Fi loss/reconnect test also stopped the motors without automatic restart. **The original release candidate failed Bluetooth reconnect; this fix branch stopped a brief resumed vibration automatically in one off-body retest.** Concurrent-command safety and additional reconnect situations have not been physically validated. Test off-body at minimum intensity, keep an independent physical disconnect option, and never expose the dashboard's HTTP port to the public internet.
+> **Release/publication gate:** The public source branch is already visible, but merging into `main` and publishing a stable GitHub Release are on hold pending clarification of Lovense's third-party [API redistribution terms](https://www.lovense.com/app-develop-api), especially section 3.5. See [issue #4](https://github.com/Otautahi/pulse-director/issues/4). A source licence does not confer permission to use or redistribute vendor materials.
 
 ## What you get
 
@@ -30,6 +30,8 @@ A free, self-hosted, browser-based controller for **one Lovense Edge 2**, runnin
 | Max 2 or simultaneous multi-device control | **Not supported** |
 
 The Autonomous Director is a **local, rule-based controller**, not a remote human or a model that can sense reactions. Its status messages describe programmed decisions; they do not imply feedback from your body or a live operator.
+
+**Hardware verification:** One Edge 2 was tested off-body with both motors, timed Director sessions, manual Stop, Bluetooth/Wi-Fi loss and recovery. The owner ran 39 offline tests; GitHub Actions passed Python 3.11 and 3.13. The concurrent Start/Stop protection is tested offline only. These tests cannot guarantee physical stopping under every fault.
 
 ## Quick start on Raspberry Pi / Linux
 
@@ -106,9 +108,9 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 ## Project status and roadmap
 
-**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with automated offline tests. The `main` branch is being updated through [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1).
+**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with 39 automated offline tests and limited real-device validation. The `main` branch remains unchanged; [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1) is held for legal and final-release checks.
 
-**Before a stable tag:** fix and independently retest the [Bluetooth reconnect safety regression](https://github.com/Otautahi/pulse-director/issues/2), concurrent-command safety checks, review of provider redistribution terms, complete documentation/security review and a fresh installation test. See the [owner-reported hardware smoke-test results](docs/HARDWARE_TEST.md).
+**Before a stable tag:** clarify [Lovense API redistribution terms](https://github.com/Otautahi/pulse-director/issues/4), finish fresh-install and privacy/security review, assess residual [Bluetooth reconnect risk](https://github.com/Otautahi/pulse-director/issues/2), and obtain final owner approval. Do not treat the observed automatic Stop on reconnect as guaranteed. See [hardware results](docs/HARDWARE_TEST.md).
 
 **Possible later work (not promised):** expanded device telemetry, smoother setup, user feedback on Director sequencing, and separately validated Max 2 support. The public v4.5 LAN edition does **not** support Max 2.
 
@@ -116,4 +118,4 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 ## Licence and independence
 
-PulseDirector's own source code is published under the [MIT licence](LICENSE). This does not grant any rights in Lovense's software, services, names or APIs. The project is **independent and not affiliated with, sponsored by or endorsed by Lovense**. Applicable third-party developer/API and redistribution terms still need checking before a stable release.
+PulseDirector's own source code is published under the [MIT licence](LICENSE). This does not grant any rights in Lovense's software, services, names or APIs. The project is **independent and not affiliated with, sponsored by or endorsed by Lovense**. Applicable third-party developer/API and redistribution terms **must be clarified** before a stable release; in particular section 3.5 of the [Lovense agreement](https://www.lovense.com/app-develop-api) raises an unresolved public-repository distribution question ([issue #4](https://github.com/Otautahi/pulse-director/issues/4)).
