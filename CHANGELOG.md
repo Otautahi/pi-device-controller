@@ -2,7 +2,7 @@
 
 ## v4.5.0 LAN Edition — experimental release candidate (17 October 2026)
 
-**Not a stable release.** GitHub `main` merge and release tagging are held pending clarification of the Lovense API's [third-party publication terms](https://github.com/Otautahi/pulse-director/issues/4), final install validation and further safety review. Source on the release-candidate branch is already publicly visible.
+**Not a stable release.** `main` merge and stable tagging await final owner approval, fresh-install validation and further safety review. [Issue #4](https://github.com/Otautahi/pulse-director/issues/4) records an unresolved question about whether Lovense's API-publication terms apply to independent LAN Game Mode GitHub projects; it is a clarification item, not proof of a blanket ban. Source on the candidate branch is already public.
 
 ### Functionality
 - Retained the v4.5 Autonomous Director and browser dashboard for **one Edge 2** using the phone's local Game Mode API.
