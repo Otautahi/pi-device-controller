@@ -3,6 +3,7 @@
 All tests use simulation or patched local API responses; they never contact a device.
 """
 import json
+import io
 import pathlib
 import sys
 import time
@@ -89,6 +90,20 @@ class StopAndAccessRegressions(unittest.TestCase):
             accepted = self.engine._send_levels(gen, 5, 5)
         self.assertFalse(accepted)
         api.assert_not_called()
+
+
+class MalformedApiResponseRegressions(unittest.TestCase):
+    def test_non_object_json_is_a_recoverable_runtime_error(self):
+        # The API parser should never raise AttributeError on valid JSON that
+        # isn't a response object: workers must get RuntimeError and fail closed.
+        engine = object.__new__(dashboard.Engine)
+        engine.simulate = False
+        engine.url = "http://127.0.0.1:20010/command"
+        for payload in (b"[]", b'"unexpected"', b"null"):
+            with self.subTest(payload=payload):
+                with patch.object(dashboard, "urlopen", return_value=io.BytesIO(payload)):
+                    with self.assertRaisesRegex(RuntimeError, "unexpected response"):
+                        engine._api({"command": "GetToys"})
 
 
 class HTTPAccessRegressions(unittest.TestCase):
