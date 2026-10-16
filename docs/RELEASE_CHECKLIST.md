@@ -18,6 +18,8 @@
 
 ## Before merging into `main`
 
+**MERGE BLOCKED:** [Issue #2](https://github.com/Otautahi/pulse-director/issues/2) — observed unintended vibration after Bluetooth reconnect. Do not merge or tag until resolved and explicitly approved.
+
 - [ ] Complete final review of source, Git history, release assets, generated screenshots and identifying metadata
 - [ ] Verify copyright attribution and third-party distribution/API requirements
 - [ ] Check fresh-install steps on a clean supported Pi/Linux setup
@@ -31,7 +33,7 @@
 - [x] Confirm live **GetToys** response identifies one Edge 2 on the owner's current hardware/app combination (16 October 2026)
 - [x] Verify both motors, live Stop, autonomous operation and 30-second timer expiry **off-body** (owner-reported; 16 October 2026)
 - [x] Test **phone Wi-Fi interruption/reconnection** during an active session; owner reported immediate motor stop and no automatic restart on reconnect (16 October 2026)
-- [ ] Test **Bluetooth interruption/recovery** and other phone connectivity faults; verify no uncommanded restart
+- [ ] **BLOCKER:** Bluetooth interruption/reconnect **FAILED** on 16 October 2026: motors unexpectedly resumed vibration after reconnect, despite dashboard 00:00 / Lovense 402. [Issue #2](https://github.com/Otautahi/pulse-director/issues/2). Investigate, fix if possible, and retest safely off-body before **any** merge/release.
 - [ ] Test simultaneous/concurrent Start and Stop requests and physical disconnect fallback
 - [ ] Confirm UI telemetry and simulated-status labels are not misleading
 - [ ] Verify updated install documentation on supported fresh Raspberry Pi OS
