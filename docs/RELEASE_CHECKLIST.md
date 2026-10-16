@@ -12,11 +12,11 @@
 - [x] Add README, installation and security guidance, changelog and MIT licence
 - [x] Obtain owner's approval to publish the source branch
 - [x] Push candidate to public branch `release/v4.5.0-lan-rc1`
-- [x] Open [draft pull request #1](https://github.com/Otautahi/pulse-director/pull/1) against `main`
+- [x] Open [pull request #1](https://github.com/Otautahi/pulse-director/pull/1) against `main`
 
 **Reminder:** The public source branch is already publicly accessible. A draft PR does not make it private.
 
-## Before merging into `main`
+## Experimental prerelease and stable-readiness review
 
 **RELEASE REVIEW:** [Issue #2](https://github.com/Otautahi/pulse-director/issues/2) documents the residual brief Bluetooth reconnection vibration, despite automatic Stop working in the observed test. [Issue #4](https://github.com/Otautahi/pulse-director/issues/4) records ambiguity in Lovense's developer terms for independent offline/LAN GitHub projects; similar open-source projects exist, but they do not establish blanket permission. Issue #4 is **advisory**, not proof that publishing the independent code is automatically prohibited.
 
@@ -25,7 +25,7 @@
 - [ ] Check fresh-install steps on a clean supported Pi/Linux setup
 - [x] Approve and upload **simulation-labelled** LAN desktop/mobile screenshots
 - [x] Set appropriate `main` branch protection / repository ruleset and required CI checks
-- [ ] Review the final PR diff and explicitly approve merging
+- [x] Owner approved merging PR #1 into `main` and publishing an **experimental prerelease** (17 October 2026); this is not authorization for a stable release
 
 ## Before a stable GitHub Release
 
@@ -41,7 +41,7 @@
 - [ ] Validate simultaneous Start/Stop and physical disconnect fallback on hardware if safely possible
 - [x] Confirm that the UI labels successful Stop as **phone API acknowledgement**, not a physical measurement, and explicitly indicates unknown physical state after fault
 - [ ] Perform final UI accessibility/telemetry review on a fresh supported setup
-- [x] Correct installation docs to reflect 39 tests, hardware recovery and remaining risk
+- [x] Correct installation docs to reflect 40 tests, hardware recovery and remaining risk
 - [ ] Verify a completely fresh Raspberry Pi OS install outside the owner's existing directories (GitHub Actions uses clean Linux checkout but is **not** Raspberry Pi OS)
 - [x] Draft updated changelog and explicitly limit supported hardware to one Edge 2
 - [ ] Approve final version tag/release title and stable-release notes after the remaining technical/safety review and vendor-terms risk assessment
