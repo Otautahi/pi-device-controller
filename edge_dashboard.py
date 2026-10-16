@@ -106,6 +106,11 @@ class Engine:
             raise RuntimeError(f"Cannot reach Lovense Remote ({exc}). Check Game Mode and phone Wi-Fi.") from exc
         except (ValueError, UnicodeError) as exc:
             raise RuntimeError("Lovense Remote returned an unexpected response") from exc
+        if not isinstance(result, dict):
+            # A malformed but valid JSON response must not kill the motor or
+            # recovery worker with an uncaught AttributeError. Treat it as a
+            # connection fault so the normal Stop/reconciliation path runs.
+            raise RuntimeError("Lovense Remote returned an unexpected response")
         if result.get("code") != 200:
             raise RuntimeError(f"Lovense returned: {result}")
         return result
