@@ -8,7 +8,7 @@ A free, self-hosted, browser-based controller for **one Lovense Edge 2**, runnin
 ![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
 [![MIT licence](https://img.shields.io/badge/licence-MIT-green)](LICENSE)
 
-> **Release candidate — limited hardware validation completed.** On 16 October 2026, the owner verified one real Edge 2 off-body: detection, both motors, Autonomous Director, 30-second automatic expiry, and Stop during an active session. Connection-loss/recovery and concurrent-command safety have **not** been physically validated. Test off-body at minimum intensity, keep an independent physical disconnect option, and never expose the dashboard's HTTP port to the public internet.
+> **Release candidate — limited hardware validation completed.** On 16 October 2026, the owner verified one real Edge 2 off-body: detection, both motors, Autonomous Director, 30-second automatic expiry, and Stop during an active session. A single phone Wi-Fi loss/reconnect test also stopped the motors without automatic restart. Bluetooth loss/recovery and concurrent-command safety have **not** been physically validated. Test off-body at minimum intensity, keep an independent physical disconnect option, and never expose the dashboard's HTTP port to the public internet.
 
 ## What you get
 
@@ -106,7 +106,7 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 **Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with automated offline tests. The `main` branch is being updated through [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1).
 
-**Before a stable tag:** connection-loss and recovery testing, concurrent-command safety checks, review of provider redistribution terms, complete documentation/security review and a fresh installation test. See the [owner-reported hardware smoke-test results](docs/HARDWARE_TEST.md).
+**Before a stable tag:** remaining Bluetooth/disconnection and recovery testing, concurrent-command safety checks, review of provider redistribution terms, complete documentation/security review and a fresh installation test. See the [owner-reported hardware smoke-test results](docs/HARDWARE_TEST.md).
 
 **Possible later work (not promised):** expanded device telemetry, smoother setup, user feedback on Director sequencing, and separately validated Max 2 support. The public v4.5 LAN edition does **not** support Max 2.
 
