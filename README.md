@@ -108,7 +108,7 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 ## Project status and roadmap
 
-**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with 40 automated offline tests in GitHub Actions and limited real-device validation. The `main` branch remains unchanged; [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1) awaits final owner approval and remaining technical checks.
+**Now:** v4.5.0 LAN Edition is an **experimental release candidate**, with 40 offline regression tests and limited off-body verification on one Edge 2. See [GitHub Releases](https://github.com/Otautahi/pulse-director/releases) for published experimental versions and [PR #1](https://github.com/Otautahi/pulse-director/pull/1) for the merge record. No stable release or physical Stop certification is claimed.
 
 **Before a stable tag:** finish fresh-install and privacy/security review, assess residual [Bluetooth reconnect risk](https://github.com/Otautahi/pulse-director/issues/2), document [vendor terms uncertainty](https://github.com/Otautahi/pulse-director/issues/4) and obtain final owner approval. Do not treat the observed automatic Stop on reconnect as guaranteed. See [hardware results](docs/HARDWARE_TEST.md).
 
