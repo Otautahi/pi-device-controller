@@ -1,6 +1,6 @@
 # Edge 2 hardware smoke test — v4.5.0 LAN RC1
 
-**Status (updated 17 October 2026):** The original build passed the basic off-body smoke test but **failed Bluetooth reconnection** (persistent unintended vibration). The corrected candidate, subsequently merged into this branch, was retested off-body: Bluetooth reconnection caused **brief resumed vibration followed by automatic Stop**; the dashboard fault latch and acknowledgement worked. Wi-Fi loss/reconnect also stopped motors and recovered without resumed vibration. **Thirty-nine offline tests** pass, including five Stop/Start concurrency tests. These are owner reports on one Edge 2, not broad physical fail-safe certification. Keep physical shutdown available; do not consider this a production-grade emergency Stop.
+**Status (updated 17 October 2026):** The original build passed the basic off-body smoke test but **failed Bluetooth reconnection** (persistent unintended vibration). The corrected candidate, subsequently merged into this branch, was retested off-body: Bluetooth reconnection caused **brief resumed vibration followed by automatic Stop**; the dashboard fault latch and acknowledgement worked. Wi-Fi loss/reconnect also stopped motors and recovered without resumed vibration. **Forty offline tests** now pass in CI, including five Stop/Start concurrency tests and malformed API-response validation. The owner ran 39 tests on the Pi before this final response-validation addition. These are owner reports on one Edge 2, not broad physical fail-safe certification. Keep physical shutdown available; do not consider this a production-grade emergency Stop.
 
 ## Before testing
 
@@ -20,7 +20,7 @@ git clone --branch release/v4.5.0-lan-rc1 --single-branch \
   https://github.com/Otautahi/pulse-director.git pulse-director-lan-test
 ```
 
-Run the offline tests (39 tests in the updated candidate):
+Run the offline tests (40 tests in the updated candidate):
 
 ```bash
 cd ~/pulse-director-lan-test
