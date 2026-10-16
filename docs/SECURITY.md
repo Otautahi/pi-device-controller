@@ -10,7 +10,9 @@ The dashboard controls a physical device. Use it **only on a trusted LAN or appr
 
 ## Device safety
 
-- Only an `Edge`/`Edge 2` device reported connected by Game Mode is accepted; ambiguous/unsupported reports cause a refusal to start. This safety check is **not hardware-validated**.
+> **Known blocking safety bug (16 October 2026):** In a real Edge 2 test, Bluetooth loss produced Lovense error 402 and local session termination, but vibration **unexpectedly restarted on Bluetooth reconnection**. The cause is not yet determined. Do **not** operate this release candidate on-body or rely on the on-screen timer/Stop as proof of physical inactivity. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2).
+
+- Only an `Edge`/`Edge 2` device reported connected by Game Mode is accepted; ambiguous/unsupported reports cause a refusal to start. Device detection was hardware-tested on one Edge 2, but Bluetooth reconnect safety **failed**.
 - Start with the device off-body and low intensity. Keep a direct physical stop option.
 - The app transmits bounded, short-duration commands and attempts Stop on errors, expiry and shutdown, but cannot guarantee immediate physical Stop after phone, Bluetooth or network failure.
 - A new session requires a fresh device readiness check; the controller never deliberately resumes a previous one after a detected error.
