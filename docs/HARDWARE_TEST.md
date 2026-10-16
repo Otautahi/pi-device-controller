@@ -1,6 +1,6 @@
 # Edge 2 hardware smoke test — v4.5.0 LAN RC1
 
-**Status:** Core off-body smoke test completed on 16 October 2026, as reported by the project owner. Connection-loss/recovery and concurrency tests remain outstanding. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
+**Status:** Core off-body smoke test completed on 16 October 2026, as reported by the project owner. A Wi-Fi interruption and reconnection test also passed; Bluetooth interruption/recovery and concurrency tests remain outstanding. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
 
 ## Before testing
 
@@ -54,7 +54,9 @@ Optional, **only after the above works** and with the device off-body: disrupt p
 
 The owner cloned the exact public release candidate into a separate test directory, ran all **26 offline tests** successfully on the Pi, and started the LAN dashboard on a separate port. The dashboard recognized the connected Edge 2. The built-in seven-second test operated Motor 1, Motor 2 and both together. A subsequent 30-second Autonomous Director session displayed intent/status changes and ended automatically with both motors stopped. A separate Wave session was stopped early with **STOP ALL MOTORS**, and both motors stopped promptly. These are user-observed pass reports, not independent measurements.
 
-**Not yet tested:** Wi-Fi/Bluetooth interruption and recovery, simultaneous Start/Stop races, firmware variations, independent physical-stop fallback under outage. Passing this smoke test does not establish a guaranteed emergency stop or full hardware compatibility.
+**Wi-Fi loss/recovery — 16 October 2026 (owner reported):** During an off-body Wave session, Wi-Fi was disabled on the phone running Lovense Remote. The owner reported that the motors stopped immediately and **did not restart when Wi-Fi was re-enabled**. Exact dashboard state/error text and stop latency were not independently measured. This result covers one real Wi-Fi interruption scenario, not all possible network outages.
+
+**Not yet tested:** Bluetooth interruption/recovery, simultaneous Start/Stop races, other firmware/network conditions, independent physical-stop fallback under outage. Passing this smoke test does not establish a guaranteed emergency stop or full hardware compatibility.
 
 ## Finish safely
 
@@ -71,7 +73,7 @@ LAN RC1 hardware check
 - Motor 1: PASS / FAIL
 - Motor 2: PASS / FAIL
 - Stop: PASS / FAIL
-- 15-second expiry: PASS / FAIL
+- 30-second expiry: PASS / FAIL
 - Autonomous Director: PASS / FAIL
 - Connection interruption (optional): PASS / FAIL / NOT TESTED
 - Notes: (no keys, IP addresses, toy IDs or raw logs)
