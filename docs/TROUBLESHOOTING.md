@@ -26,6 +26,10 @@ The key is printed when PulseDirector starts. It is also stored in `.edge_dashbo
 
 The release candidate deliberately refuses to start when it cannot positively identify **one connected Edge 2**. Disconnect Max 2 and any other toys. If your Edge 2 is reported under an unexpected model name, do **not** bypass validation. Report only a sanitized, non-identifying description of the model fields and firmware.
 
+## Red fault warning / automatic Stop pending
+
+A detected Bluetooth/Wi-Fi/Game Mode failure ends the session and attempts Stop. If the phone or toy cannot receive the command, the dashboard **cannot verify physical inactivity**. Keep the device off-body during tests and power it off physically if it continues vibrating. Once exactly one Edge 2 reconnects, the controller retries Stop. The red warning intentionally stays visible until the phone API has accepted recovery Stop commands and you **check the physical toy and acknowledge**. A brief vibration can occur on Bluetooth reconnection before the Stop reaches the toy. Do not bypass this fault latch. If the warning stays pending, check Game Mode, Bluetooth and Wi-Fi; do not assume the 00:00 timer means physical Stop.
+
 ## Director doesn't start, or Stop seems delayed
 
 - Check the session timer, maximum intensity cap and whether the device is actually connected.
