@@ -51,6 +51,8 @@ class Engine:
         self.close = threading.Event()
         self.mode = "idle"
         self.generation = 0
+        # Stop has priority over an in-flight Start or motor Test request.
+        self.stop_epoch = 0
         self.started = 0.0
         self.end = 0.0
         self.max_level = 10
@@ -132,22 +134,24 @@ class Engine:
             return self._api({"command": "Function", "action": "Stop", "timeSec": 0,
                               "stopPrevious": 1, "apiVer": 1})
 
-    def _set_idle(self, why):
+    def _set_idle(self, why, cancel_pending=True):
         with self.state_lock:
             self.generation += 1
+            if cancel_pending:
+                self.stop_epoch += 1
             self.mode = "idle"
             self.end = 0.0
             self.display1 = self.display2 = 0
             self.message = why
             self.wake.set()
 
-    def stop(self, why="Stopped", fault=False):
+    def stop(self, why="Stopped", fault=False, cancel_pending=True):
         """Stop immediately if reachable; remember a failed Stop for recovery.
 
         A 200 response acknowledges the phone API, NOT the toy's physical state.
         In particular, Stop attempted during Bluetooth loss can return 402.
         """
-        self._set_idle(why)
+        self._set_idle(why, cancel_pending=cancel_pending)
         if fault:
             with self.state_lock:
                 self.fault_latched = True
@@ -248,13 +252,20 @@ class Engine:
             raise ValueError("Surprise must be between 1 and 5")
         # No reactivation while a connection/Stop error remains latched.
         with self.state_lock:
-            if self.fault_latched:
-                raise RuntimeError("Connection fault locked: verify physical Stop and acknowledge after recovery")
+            if self.fault_latched or self.close.is_set():
+                raise RuntimeError("Connection fault locked or shutting down: cannot start")
+            request_stop_epoch = self.stop_epoch
             already_running = self.mode != "idle"
         if already_running:
-            self.stop("Switching patterns")
+            # Internal mode switch must not hide a *separate* Stop request.
+            with self.state_lock:
+                if self.stop_epoch != request_stop_epoch:
+                    raise RuntimeError("Start cancelled by STOP")
+            self.stop("Switching patterns", cancel_pending=False)
         self._require_edge2()
         with self.state_lock:
+            if self.stop_epoch != request_stop_epoch or self.close.is_set():
+                raise RuntimeError("Start cancelled by STOP")
             if self.fault_latched:
                 raise RuntimeError("Connection fault locked: cannot start")
             self.generation += 1
@@ -286,13 +297,19 @@ class Engine:
     def test(self):
         # Tests separate motor commands; a device without support will error.
         with self.state_lock:
-            if self.fault_latched:
-                raise RuntimeError("Connection fault locked: cannot test motors")
+            if self.fault_latched or self.close.is_set():
+                raise RuntimeError("Connection fault locked or shutting down: cannot test motors")
+            request_stop_epoch = self.stop_epoch
             already_running = self.mode != "idle"
         if already_running:
-            self.stop("Starting motor test")
+            with self.state_lock:
+                if self.stop_epoch != request_stop_epoch:
+                    raise RuntimeError("Motor test cancelled by STOP")
+            self.stop("Starting motor test", cancel_pending=False)
         self._require_edge2()
         with self.state_lock:
+            if self.stop_epoch != request_stop_epoch or self.close.is_set():
+                raise RuntimeError("Motor test cancelled by STOP")
             if self.fault_latched:
                 raise RuntimeError("Connection fault locked: cannot test motors")
             self.generation += 1
