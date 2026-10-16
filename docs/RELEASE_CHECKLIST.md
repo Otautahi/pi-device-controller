@@ -18,10 +18,10 @@
 
 ## Before merging into `main`
 
-**MERGE / STABLE TAG ON HOLD:** The persistent Bluetooth reconnect failure in [issue #2](https://github.com/Otautahi/pulse-director/issues/2) was mitigated, but **brief vibration still occurs before automatic Stop**. The separate release gate is [issue #4](https://github.com/Otautahi/pulse-director/issues/4): Lovense's [API agreement](https://www.lovense.com/app-develop-api), sections 1.3 and 3.5, raises an unresolved restriction on publication in public code repositories. The source candidate is already public; that does not establish redistribution permission.
+**RELEASE REVIEW:** [Issue #2](https://github.com/Otautahi/pulse-director/issues/2) documents the residual brief Bluetooth reconnection vibration, despite automatic Stop working in the observed test. [Issue #4](https://github.com/Otautahi/pulse-director/issues/4) records ambiguity in Lovense's developer terms for independent offline/LAN GitHub projects; similar open-source projects exist, but they do not establish blanket permission. Issue #4 is **advisory**, not proof that publishing the independent code is automatically prohibited.
 
 - [ ] Complete final review of source, Git history, release assets, generated screenshots and identifying metadata
-- [ ] **Blocking:** confirm Lovense API/public GitHub redistribution rights in writing or with qualified legal guidance ([issue #4](https://github.com/Otautahi/pulse-director/issues/4)); independently confirm copyright/source attribution
+- [ ] **Advisory:** seek clarification of Lovense's API/public GitHub terms for local Game Mode projects ([issue #4](https://github.com/Otautahi/pulse-director/issues/4)); independently confirm copyright/source attribution
 - [ ] Check fresh-install steps on a clean supported Pi/Linux setup
 - [x] Approve and upload **simulation-labelled** LAN desktop/mobile screenshots
 - [x] Set appropriate `main` branch protection / repository ruleset and required CI checks
@@ -36,7 +36,7 @@
 - [x] **Mitigation retested on fix branch (16 October 2026):** Original build had persistent vibration after Bluetooth reconnect (Lovense 402); fix branch observed brief reconnect vibration followed by **automatic Stop**, fault warning and successful manual acknowledgement. [Issue #2](https://github.com/Otautahi/pulse-director/issues/2) remains open for residual risk and broader validation.
 - [x] **Wi-Fi retested on updated fix branch (17 October 2026):** motors stopped on Wi-Fi loss and stayed stopped after reconnection; automatic Stop recovery completed; acknowledgement restored controls (owner-reported).
 - [x] **Concurrent Stop/Start and Stop/motor-test** offline regression tests added; all 40 tests pass on Python 3.10–3.13 in GitHub Actions; owner ran 39 on the Pi before the final malformed-response test.
-- [ ] **Before release:** review residual brief Bluetooth reconnect vibration, verify relevant vendor terms, fresh-install and final code security review; obtain explicit merge/release approval. The dashboard cannot guarantee physical Stop during disconnection.
+- [ ] **Before stable release:** review residual brief Bluetooth reconnect vibration, document vendor terms uncertainty, perform fresh-install and final code security review; obtain explicit merge/release approval. The dashboard cannot guarantee physical Stop during disconnection.
 - [x] Test simulated concurrent Start/Stop requests in deterministic offline regressions (5 tests)
 - [ ] Validate simultaneous Start/Stop and physical disconnect fallback on hardware if safely possible
 - [x] Confirm that the UI labels successful Stop as **phone API acknowledgement**, not a physical measurement, and explicitly indicates unknown physical state after fault
@@ -44,7 +44,7 @@
 - [x] Correct installation docs to reflect 39 tests, hardware recovery and remaining risk
 - [ ] Verify a completely fresh Raspberry Pi OS install outside the owner's existing directories (GitHub Actions uses clean Linux checkout but is **not** Raspberry Pi OS)
 - [x] Draft updated changelog and explicitly limit supported hardware to one Edge 2
-- [ ] Approve final version tag/release title and stable-release notes after legal clearance
+- [ ] Approve final version tag/release title and stable-release notes after the remaining technical/safety review and vendor-terms risk assessment
 - [ ] Obtain explicit owner approval for a stable release
 
 Passing automated tests does **not** certify physical motor control or a guaranteed emergency stop. Never upload a live controller directory, access key, cloud token or personally identifying logs.
