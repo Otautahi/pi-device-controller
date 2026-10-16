@@ -38,10 +38,15 @@ An offline regression reproduced an additional race: if an explicit Stop arrived
 - [x] Verify owner acknowledgement: once API recovery was reported, clicking **Acknowledge after checking physical device** cleared the red warning and returned the dashboard to normal (owner-reported, 16 October 2026)
 - [ ] Repeat controlled off-body failure/reconnection tests under varied timing
 - [x] Test concurrent Stop vs in-progress Start, motor Test and pattern-switch validation using deterministic offline races (5 new tests). An explicit Stop now invalidates pending sessions, so a stale Start cannot reactivate motor commands
+- [x] **Phone Wi-Fi failure/reconnect on updated fix branch** — owner-reported on 17 October 2026: motors stopped on Wi-Fi loss; red connection-fault warnings appeared; after restoring Wi-Fi the motors remained stopped, automatic Stop recovery completed, and acknowledgement restored controls
 - [ ] Test additional phone/app/firmware variability and further real-world connection failures before release
 
 ### Observed physical behaviour — 16 October 2026
 
 The owner reported that the Edge 2 was detected by the fix-branch dashboard on port 8766 and, when Bluetooth was disabled during a Wave session, the fault warning appeared with automatic Stop pending. Following Bluetooth reconnection, the toy **vibrated briefly and then stopped automatically**. The dashboard later showed Stop had been accepted by the phone API and enabled the acknowledgement button. This was **one successful off-body physical test**, not a quantitative stop-latency measurement. The owner subsequently confirmed that clicking the acknowledgement button cleared the red warning and returned the dashboard to normal. This verifies the observed UI acknowledgement flow, but does not independently prove physical motor state or test restarting a motor session.
+
+### Observed Wi-Fi recovery — 17 October 2026
+
+Following the updated concurrent Stop/Start fix (39 offline tests passed on the owner's Raspberry Pi), the owner conducted another low-intensity off-body Wave session using the public fix-branch dashboard on port 8766. Disabling phone Wi-Fi stopped the motors, and both red connection-fault warnings appeared. On reconnection, the motors **remained stopped**, recovery completed successfully, and the acknowledgement button restored the dashboard to normal. These results were reported by the owner, not measured independently. No brief vibration on Wi-Fi reconnect was reported.
 
 This is an independent project and not affiliated with Lovense. Vendor API compatibility and redistribution terms remain under review.
