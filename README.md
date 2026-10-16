@@ -10,7 +10,7 @@ A free, self-hosted, browser-based controller for **one Lovense Edge 2**, runnin
 
 > **EXPERIMENTAL RELEASE CANDIDATE — NOT A STABLE RELEASE:** The original candidate allowed vibration to resume continuously after Bluetooth reconnect. The updated candidate automatically retries Stop on reconnection and locks the session after a fault. In one off-body test the Edge 2 **vibrated briefly on reconnect, then stopped automatically**; on a separate Wi-Fi interruption test it stayed stopped. These observations are not proof of a physical fail-safe: communication loss can prevent remote Stop. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) and [recovery validation](docs/RECOVERY_DESIGN.md).
 
-> **Release/publication gate:** The public source branch is already visible, but merging into `main` and publishing a stable GitHub Release are on hold pending clarification of Lovense's third-party [API redistribution terms](https://www.lovense.com/app-develop-api), especially section 3.5. See [issue #4](https://github.com/Otautahi/pulse-director/issues/4). A source licence does not confer permission to use or redistribute vendor materials.
+> **Third-party API terms:** The candidate source is already publicly visible. Lovense's published [developer agreement](https://www.lovense.com/app-develop-api) leaves a question about application to independent, free LAN Game Mode projects; there are also several similar public GitHub projects and official integration examples. [Issue #4](https://github.com/Otautahi/pulse-director/issues/4) tracks this as a **clarification to pursue**, not proof of an outright distribution prohibition. The MIT licence covers our own code only.
 
 ## What you get
 
@@ -108,9 +108,9 @@ See the [release checklist](docs/RELEASE_CHECKLIST.md) for what remains before w
 
 ## Project status and roadmap
 
-**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with 40 automated offline tests in GitHub Actions and limited real-device validation. The `main` branch remains unchanged; [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1) is held for legal and final-release checks.
+**Now:** public source-code release candidate in `release/v4.5.0-lan-rc1`, with 40 automated offline tests in GitHub Actions and limited real-device validation. The `main` branch remains unchanged; [draft PR #1](https://github.com/Otautahi/pulse-director/pull/1) awaits final owner approval and remaining technical checks.
 
-**Before a stable tag:** clarify [Lovense API redistribution terms](https://github.com/Otautahi/pulse-director/issues/4), finish fresh-install and privacy/security review, assess residual [Bluetooth reconnect risk](https://github.com/Otautahi/pulse-director/issues/2), and obtain final owner approval. Do not treat the observed automatic Stop on reconnect as guaranteed. See [hardware results](docs/HARDWARE_TEST.md).
+**Before a stable tag:** finish fresh-install and privacy/security review, assess residual [Bluetooth reconnect risk](https://github.com/Otautahi/pulse-director/issues/2), document [vendor terms uncertainty](https://github.com/Otautahi/pulse-director/issues/4) and obtain final owner approval. Do not treat the observed automatic Stop on reconnect as guaranteed. See [hardware results](docs/HARDWARE_TEST.md).
 
 **Possible later work (not promised):** expanded device telemetry, smoother setup, user feedback on Director sequencing, and separately validated Max 2 support. The public v4.5 LAN edition does **not** support Max 2.
 
