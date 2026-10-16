@@ -1,6 +1,6 @@
 # Edge 2 hardware smoke test — v4.5.0 LAN RC1
 
-**Status:** not yet completed. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
+**Status:** Core off-body smoke test completed on 16 October 2026, as reported by the project owner. Connection-loss/recovery and concurrency tests remain outstanding. This guide checks the *published LAN-only build*, not the owner's working hybrid controller. Perform all motor tests **off-body**, with the device in reach and the ability to turn it off physically.
 
 ## Before testing
 
@@ -41,14 +41,20 @@ Open `http://YOUR_PI_LAN_IP:8766` in a browser on your trusted LAN and enter the
 
 ## Five-minute off-body checklist
 
-- [ ] **Detection:** dashboard identifies one connected Edge 2. If it rejects the device model, **stop here**; do not bypass verification.
-- [ ] **Motor 1:** low-intensity manual setting activates only Motor 1 as expected.
-- [ ] **Motor 2:** low-intensity manual setting activates only Motor 2 as expected.
-- [ ] **Stop:** Stop ends motor activity promptly. Keep the physical shutoff accessible.
-- [ ] **Timeout:** start a short session (minimum 0.25 min = 15 seconds); confirm it ends and motors cease.
-- [ ] **Director:** briefly start Autonomous Director at a low cap, observe intent/status, then press Stop.
+- [x] **Detection:** dashboard identifies one connected Edge 2. If it rejects the device model, **stop here**; do not bypass verification.
+- [x] **Motor 1:** low-intensity manual setting activates only Motor 1 as expected.
+- [x] **Motor 2:** low-intensity manual setting activates only Motor 2 as expected.
+- [x] **Stop:** Stop ends motor activity promptly. Keep the physical shutoff accessible.
+- [x] **Timeout:** 30-second Autonomous Director session ended automatically; motors stopped. The dashboard's minimum timer setting is 0.5 min (30 seconds).
+- [x] **Director:** ran with Confident / High energy / Surprise 4/5 and maximum 5/20; live intent display worked and session expired at 30 seconds.
 
 Optional, **only after the above works** and with the device off-body: disrupt phone Wi-Fi or Bluetooth and verify the dashboard stops attempting the session; physically switch the toy off if Stop cannot reach it. A network outage may prevent remote Stop delivery.
+
+## Observed results — 16 October 2026
+
+The owner cloned the exact public release candidate into a separate test directory, ran all **26 offline tests** successfully on the Pi, and started the LAN dashboard on a separate port. The dashboard recognized the connected Edge 2. The built-in seven-second test operated Motor 1, Motor 2 and both together. A subsequent 30-second Autonomous Director session displayed intent/status changes and ended automatically with both motors stopped. A separate Wave session was stopped early with **STOP ALL MOTORS**, and both motors stopped promptly. These are user-observed pass reports, not independent measurements.
+
+**Not yet tested:** Wi-Fi/Bluetooth interruption and recovery, simultaneous Start/Stop races, firmware variations, independent physical-stop fallback under outage. Passing this smoke test does not establish a guaranteed emergency stop or full hardware compatibility.
 
 ## Finish safely
 
