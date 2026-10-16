@@ -2,7 +2,7 @@
 
 **Status: prototype, with a first successful off-body reconnection test (16 October 2026).** This is not a physical Stop guarantee. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) for the original persistent vibration on Bluetooth reconnect and the fix follow-up. **The updated build still allowed a brief reconnect vibration before automatically stopping it.** Further testing, review and owner approval are required before merging or release.
 
-## Behaviour implemented in this fix branch
+## Behaviour implemented in this release candidate
 
 1. An active session sends short, time-bounded LAN commands. When a motor request fails (including Lovense error 402 during Bluetooth loss, or Wi-Fi/phone unreachable), the worker invalidates the session generation and **attempts Function/Stop immediately**.
 2. If the phone or toy is unavailable, the Stop call can fail. The controller **latches the fault**, retains a **Stop pending** flag, and displays a prominent warning that the **physical motor state is unknown**, regardless of the dashboard's 00:00 timer.
@@ -38,15 +38,15 @@ An offline regression reproduced an additional race: if an explicit Stop arrived
 - [x] Verify owner acknowledgement: once API recovery was reported, clicking **Acknowledge after checking physical device** cleared the red warning and returned the dashboard to normal (owner-reported, 16 October 2026)
 - [ ] Repeat controlled off-body failure/reconnection tests under varied timing
 - [x] Test concurrent Stop vs in-progress Start, motor Test and pattern-switch validation using deterministic offline races (5 new tests). An explicit Stop now invalidates pending sessions, so a stale Start cannot reactivate motor commands
-- [x] **Phone Wi-Fi failure/reconnect on updated fix branch** — owner-reported on 17 October 2026: motors stopped on Wi-Fi loss; red connection-fault warnings appeared; after restoring Wi-Fi the motors remained stopped, automatic Stop recovery completed, and acknowledgement restored controls
+- [x] **Phone Wi-Fi failure/reconnect on updated candidate** — owner-reported on 17 October 2026: motors stopped on Wi-Fi loss; red connection-fault warnings appeared; after restoring Wi-Fi the motors remained stopped, automatic Stop recovery completed, and acknowledgement restored controls
 - [ ] Test additional phone/app/firmware variability and further real-world connection failures before release
 
 ### Observed physical behaviour — 16 October 2026
 
-The owner reported that the Edge 2 was detected by the fix-branch dashboard on port 8766 and, when Bluetooth was disabled during a Wave session, the fault warning appeared with automatic Stop pending. Following Bluetooth reconnection, the toy **vibrated briefly and then stopped automatically**. The dashboard later showed Stop had been accepted by the phone API and enabled the acknowledgement button. This was **one successful off-body physical test**, not a quantitative stop-latency measurement. The owner subsequently confirmed that clicking the acknowledgement button cleared the red warning and returned the dashboard to normal. This verifies the observed UI acknowledgement flow, but does not independently prove physical motor state or test restarting a motor session.
+The owner reported that the Edge 2 was detected by the isolated candidate test dashboard on port 8766 and, when Bluetooth was disabled during a Wave session, the fault warning appeared with automatic Stop pending. Following Bluetooth reconnection, the toy **vibrated briefly and then stopped automatically**. The dashboard later showed Stop had been accepted by the phone API and enabled the acknowledgement button. This was **one successful off-body physical test**, not a quantitative stop-latency measurement. The owner subsequently confirmed that clicking the acknowledgement button cleared the red warning and returned the dashboard to normal. This verifies the observed UI acknowledgement flow, but does not independently prove physical motor state or test restarting a motor session.
 
 ### Observed Wi-Fi recovery — 17 October 2026
 
-Following the updated concurrent Stop/Start fix (39 offline tests passed on the owner's Raspberry Pi), the owner conducted another low-intensity off-body Wave session using the public fix-branch dashboard on port 8766. Disabling phone Wi-Fi stopped the motors, and both red connection-fault warnings appeared. On reconnection, the motors **remained stopped**, recovery completed successfully, and the acknowledgement button restored the dashboard to normal. These results were reported by the owner, not measured independently. No brief vibration on Wi-Fi reconnect was reported.
+Following the updated concurrent Stop/Start fix (39 offline tests passed on the owner's Raspberry Pi), the owner conducted another low-intensity off-body Wave session using the isolated public candidate test dashboard on port 8766. Disabling phone Wi-Fi stopped the motors, and both red connection-fault warnings appeared. On reconnection, the motors **remained stopped**, recovery completed successfully, and the acknowledgement button restored the dashboard to normal. These results were reported by the owner, not measured independently. No brief vibration on Wi-Fi reconnect was reported.
 
 This is an independent project and not affiliated with Lovense. Vendor API compatibility and redistribution terms remain under review.
