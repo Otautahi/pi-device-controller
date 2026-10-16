@@ -21,15 +21,15 @@
 - [ ] Complete final review of source, Git history, release assets, generated screenshots and identifying metadata
 - [ ] Verify copyright attribution and third-party distribution/API requirements
 - [ ] Check fresh-install steps on a clean supported Pi/Linux setup
-- [ ] Approve and upload **simulation-labelled** LAN desktop/mobile screenshots
-- [ ] Set appropriate `main` branch protection / repository ruleset and required CI checks
+- [x] Approve and upload **simulation-labelled** LAN desktop/mobile screenshots
+- [x] Set appropriate `main` branch protection / repository ruleset and required CI checks
 - [ ] Review the final PR diff and explicitly approve merging
 
 ## Before a stable GitHub Release
 
-- [ ] Follow the [off-body hardware test guide](HARDWARE_TEST.md) and record sanitized pass/fail results
-- [ ] Confirm live **GetToys** response identifies Edge 2 on actual firmware
-- [ ] Physically verify both motors, independent Stop, manual mode and timer expiry **off-body**
+- [x] Follow the [off-body hardware test guide](HARDWARE_TEST.md) for basic detection, motor, Stop and timeout tests; record sanitized results (16 October 2026)
+- [x] Confirm live **GetToys** response identifies one Edge 2 on the owner's current hardware/app combination (16 October 2026)
+- [x] Verify both motors, live Stop, autonomous operation and 30-second timer expiry **off-body** (owner-reported; 16 October 2026)
 - [ ] Test loss/recovery of Wi-Fi, Bluetooth and phone connectivity; ensure no uncommanded restart
 - [ ] Test simultaneous/concurrent Start and Stop requests and physical disconnect fallback
 - [ ] Confirm UI telemetry and simulated-status labels are not misleading
