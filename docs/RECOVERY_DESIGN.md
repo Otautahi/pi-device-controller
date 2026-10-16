@@ -1,0 +1,36 @@
+# Connection-failure Stop recovery — experimental design
+
+**Status: proposed fix, OFFLINE-TESTED ONLY.** This is not a physical stop guarantee. See the [release blocker](https://github.com/Otautahi/pulse-director/issues/2) for the actual 16 October 2026 Bluetooth-reconnect failure. Do not merge or make an on-body release based on offline test success.
+
+## Behaviour implemented in this fix branch
+
+1. An active session sends short, time-bounded LAN commands. When a motor request fails (including Lovense error 402 during Bluetooth loss, or Wi-Fi/phone unreachable), the worker invalidates the session generation and **attempts Function/Stop immediately**.
+2. If the phone or toy is unavailable, the Stop call can fail. The controller **latches the fault**, retains a **Stop pending** flag, and displays a prominent warning that the **physical motor state is unknown**, regardless of the dashboard's 00:00 timer.
+3. A separate recovery worker checks phone/Game Mode and whether **exactly one Edge 2** is connected at about **one-second intervals** while Stop is pending. Only after the device is reported connected does it issue a new **Function/Stop**.
+4. The recovery worker attempts three successful Stop acknowledgements at separate intervals to help clear delayed app/device command state. If connectivity disappears or an attempted Stop fails, it resets this acknowledgement count and keeps retrying while the server runs.
+5. The **Start**, **Manual Start** and **Motor Test** endpoints refuse new sessions while a fault is latched, including if the browser is bypassed. Once three phone-API Stop acknowledgements have been received, the owner must physically check the toy and explicitly acknowledge the fault to unlock controls.
+6. The prominent Stop button remains usable even while the dashboard reports idle or the recovery worker is active, allowing an immediate additional Stop attempt whenever the phone can receive it.
+7. While a session is active the telemetry worker checks device connection roughly every two seconds (instead of every 20 seconds). A motor command failure usually triggers detection even sooner.
+
+## Important limitations
+
+- **No Stop can be delivered while the phone is unreachable or Bluetooth is disconnected.** A resumed command may activate motors before the first post-reconnect Stop reaches the toy. Automatic retry is mitigation, not prevention of the initial burst.
+- A 200 response from Lovense Remote confirms *phone-API acknowledgement* only, not an independently measured change of physical motor state. Even three successful requests cannot certify physical stop.
+- The toy may reconnect without the app immediately reporting a connected Edge 2. The one-second check is an approximate software polling interval, not a promised hardware reaction deadline.
+- The controller cannot detect whether an unrelated app, Lovense firmware, or phone UI itself starts vibration. Hard power-off of the toy is the independent safety action.
+- The fault/recovery worker only runs while this Python process is alive. A power outage, process crash or forced kill can prevent retries.
+- This proof-of-concept uses no cloud API, remote access, or private device identifiers. It must remain separate from the owner's production/hybrid installation.
+
+## Validation requirements
+
+- [x] Simulated error 402 + failed Stop, then Bluetooth reconnect: repeated STOP only, never a stale vibration command (offline)
+- [x] Simulated Wi-Fi loss and recovery: repeated STOP and locked session (offline)
+- [x] Phone reachable while Bluetooth disconnected: no false Stop acknowledgements (offline)
+- [x] Phone reporting connected but refusing Stop: no false recovery (offline)
+- [x] Normal manual Stop continues to work (offline)
+- [ ] Confirm full GitHub Actions test suite on Python 3.11 and 3.13
+- [ ] Review with physical toy **off-body**, at low intensity, with direct power button available
+- [ ] Repeat Bluetooth disconnect/reconnect with care; log any vibration before automatic Stop arrives
+- [ ] Recheck against phone/app/firmware variability and concurrent API requests before release
+
+This is an independent project and not affiliated with Lovense. Vendor API compatibility and redistribution terms remain under review.
