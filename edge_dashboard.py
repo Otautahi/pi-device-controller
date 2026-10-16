@@ -51,6 +51,8 @@ class Engine:
         self.close = threading.Event()
         self.mode = "idle"
         self.generation = 0
+        # Stop has priority over an in-flight Start or motor Test request.
+        self.stop_epoch = 0
         self.started = 0.0
         self.end = 0.0
         self.max_level = 10
@@ -73,12 +75,23 @@ class Engine:
         self.device_name = "Edge 2"
         self.last_telemetry = None
         self.last_device_error = ""
+        # A failed Stop is NOT a physical Stop. Hold a fault until connected
+        # again and multiple Stop requests have been acknowledged by the phone.
+        self.fault_latched = False
+        self.fault_reason = ""
+        self.stop_pending = False
+        self.stop_acks = 0
+        self.stop_attempts = 0
+        self.last_stop_error = ""
+        self.recovery_wake = threading.Event()
         self.session_commands = 0
         self.total_commands = 0
         self.worker = threading.Thread(target=self._loop, name="edge-pattern-worker", daemon=True)
         self.telemetry_worker = threading.Thread(target=self._telemetry_loop, name="edge-telemetry", daemon=True)
+        self.recovery_worker = threading.Thread(target=self._recovery_loop, name="edge-stop-recovery", daemon=True)
         self.worker.start()
         self.telemetry_worker.start()
+        self.recovery_worker.start()
 
     def _api(self, payload):
         if self.simulate:
@@ -102,7 +115,7 @@ class Engine:
         # previous generation cannot switch the toy back on after STOP.
         with self.io_lock:
             with self.state_lock:
-                if gen != self.generation or self.mode == "idle":
+                if gen != self.generation or self.mode == "idle" or self.fault_latched:
                     return False
                 if time.monotonic() >= self.end:
                     return False
@@ -118,26 +131,103 @@ class Engine:
 
     def _send_stop(self):
         with self.io_lock:
-            return self._api({"command": "Function", "action": "Stop", "timeSec": 0, "apiVer": 1})
+            return self._api({"command": "Function", "action": "Stop", "timeSec": 0,
+                              "stopPrevious": 1, "apiVer": 1})
 
-    def _set_idle(self, why):
+    def _set_idle(self, why, cancel_pending=True):
         with self.state_lock:
             self.generation += 1
+            if cancel_pending:
+                self.stop_epoch += 1
             self.mode = "idle"
             self.end = 0.0
             self.display1 = self.display2 = 0
             self.message = why
             self.wake.set()
 
-    def stop(self, why="Stopped"):
-        self._set_idle(why)
+    def stop(self, why="Stopped", fault=False, cancel_pending=True):
+        """Stop immediately if reachable; remember a failed Stop for recovery.
+
+        A 200 response acknowledges the phone API, NOT the toy's physical state.
+        In particular, Stop attempted during Bluetooth loss can return 402.
+        """
+        self._set_idle(why, cancel_pending=cancel_pending)
+        if fault:
+            with self.state_lock:
+                self.fault_latched = True
+                self.fault_reason = why
+                self.stop_pending = True
+                self.stop_acks = 0
         try:
             self._send_stop()
         except RuntimeError as exc:
             with self.state_lock:
-                self.message = f"Stop command failed: {exc}. Prior timed command should expire within 2 seconds."
+                self.fault_latched = True
+                self.fault_reason = self.fault_reason or why
+                self.stop_pending = True
+                self.stop_acks = 0
+                self.last_stop_error = str(exc)
+                self.message = "Stop command failed: " + str(exc) + ". STOP NOT DELIVERED; physical state UNKNOWN. Check toy."
+            self.recovery_wake.set()
             raise
+        with self.state_lock:
+            self.last_stop_error = ""
+            if self.fault_latched:
+                # A fault always needs reconciliation, even if a single Stop
+                # was accepted. A later successful API call is not proof that
+                # the Bluetooth device stopped physically.
+                self.stop_pending = True
+                self.stop_acks = min(self.stop_acks + 1, 2)
+                self.message = "Connection fault — verifying Stop on reconnect; physical state unknown."
+                self.recovery_wake.set()
         return self.status()
+
+    def acknowledge_fault(self):
+        """Explicit re-arm only after repeated successful STOP acknowledgments."""
+        with self.state_lock:
+            if self.mode != "idle" or self.stop_pending:
+                raise RuntimeError("Stop recovery incomplete; keep device physically off")
+            if self.fault_latched:
+                self.fault_latched = False
+                self.fault_reason = ""
+                self.last_stop_error = ""
+                self.message = "Fault acknowledged. Physical motor state was not independently measured."
+        return self.status()
+
+    def _recovery_loop(self):
+        """Once per second, reconcile a failed Stop when LAN/Bluetooth returns.
+
+        No Start is possible while the fault is latched. Do not confuse an
+        accepted Stop response with a physical guarantee of motor inactivity.
+        """
+        while not self.close.is_set():
+            with self.state_lock:
+                pending = self.stop_pending
+            if pending:
+                try:
+                    # GETTOYS must report one real connected Edge 2; a live
+                    # phone with Bluetooth disabled is not sufficient.
+                    ready = self.refresh_toys()["toyConnected"]
+                    if ready:
+                        self._send_stop()
+                        with self.state_lock:
+                            if self.stop_pending:
+                                self.stop_attempts += 1
+                                self.stop_acks += 1
+                                self.last_stop_error = ""
+                                if self.stop_acks >= 3:
+                                    self.stop_pending = False
+                                    self.message = ("Recovery STOP accepted by Lovense Remote; "
+                                                    "physically check toy and acknowledge fault before starting.")
+                                else:
+                                    self.message = "Recovery Stop sent; confirming after reconnection."
+                except RuntimeError as exc:
+                    with self.state_lock:
+                        self.stop_acks = 0
+                        self.last_stop_error = str(exc)
+                        self.message = "STOP NOT DELIVERED; device state UNKNOWN. " + str(exc)
+            self.recovery_wake.wait(1.0)
+            self.recovery_wake.clear()
 
     def start(self, body):
         if not isinstance(body, dict):
@@ -160,13 +250,24 @@ class Engine:
         surprise = limited_number(body.get("surprise", 4), 0, 6, True)
         if not 1 <= surprise <= 5:
             raise ValueError("Surprise must be between 1 and 5")
-        # Refuse to send motor commands if the LAN doesn't report one confirmed Edge 2.
+        # No reactivation while a connection/Stop error remains latched.
         with self.state_lock:
+            if self.fault_latched or self.close.is_set():
+                raise RuntimeError("Connection fault locked or shutting down: cannot start")
+            request_stop_epoch = self.stop_epoch
             already_running = self.mode != "idle"
         if already_running:
-            self.stop("Switching patterns")
+            # Internal mode switch must not hide a *separate* Stop request.
+            with self.state_lock:
+                if self.stop_epoch != request_stop_epoch:
+                    raise RuntimeError("Start cancelled by STOP")
+            self.stop("Switching patterns", cancel_pending=False)
         self._require_edge2()
         with self.state_lock:
+            if self.stop_epoch != request_stop_epoch or self.close.is_set():
+                raise RuntimeError("Start cancelled by STOP")
+            if self.fault_latched:
+                raise RuntimeError("Connection fault locked: cannot start")
             self.generation += 1
             self.mode = mode
             self.max_level = max_level
@@ -196,11 +297,21 @@ class Engine:
     def test(self):
         # Tests separate motor commands; a device without support will error.
         with self.state_lock:
+            if self.fault_latched or self.close.is_set():
+                raise RuntimeError("Connection fault locked or shutting down: cannot test motors")
+            request_stop_epoch = self.stop_epoch
             already_running = self.mode != "idle"
         if already_running:
-            self.stop("Starting motor test")
+            with self.state_lock:
+                if self.stop_epoch != request_stop_epoch:
+                    raise RuntimeError("Motor test cancelled by STOP")
+            self.stop("Starting motor test", cancel_pending=False)
         self._require_edge2()
         with self.state_lock:
+            if self.stop_epoch != request_stop_epoch or self.close.is_set():
+                raise RuntimeError("Motor test cancelled by STOP")
+            if self.fault_latched:
+                raise RuntimeError("Connection fault locked: cannot test motors")
             self.generation += 1
             self.mode = "test"
             self.max_level = 5
@@ -286,7 +397,8 @@ class Engine:
         return self.status()
 
     def _telemetry_loop(self):
-        # Query battery every 20 seconds, not on every 1-second UI poll.
+        # Query while active about every 2 seconds to detect silent Bluetooth
+        # loss; poll more slowly when idle. The motor worker also detects 402.
         if self.close.wait(.5):
             return
         while not self.close.is_set():
@@ -300,10 +412,12 @@ class Engine:
                     status = {"toyConnected": False, "running": self.mode != "idle"}
             if status["toyConnected"] is False and status["running"] and not self.close.is_set():
                 try:
-                    self.stop("Edge 2 disconnected or not verified; session stopped")
+                    self.stop("Edge 2 disconnected or not verified; session stopped", fault=True)
                 except RuntimeError:
                     pass
-            self.close.wait(20)
+            with self.state_lock:
+                active = self.mode != "idle"
+            self.close.wait(2 if active else 10)
 
     def status(self):
         with self.state_lock:
@@ -330,7 +444,10 @@ class Engine:
                     "toyConnected": self.toy_connected, "deviceName": self.device_name,
                     "lastDeviceCheckSec": freshness, "lastDeviceError": self.last_device_error,
                     "sessionCommands": self.session_commands,
-                    "totalCommands": self.total_commands}
+                    "totalCommands": self.total_commands,
+                    "faultLatched": self.fault_latched, "faultReason": self.fault_reason,
+                    "stopPending": self.stop_pending, "stopAcks": self.stop_acks,
+                    "stopAttempts": self.stop_attempts, "lastStopError": self.last_stop_error}
 
     def _pattern(self, mode, elapsed, maximum, speed, m1, m2, rnd, support=65):
         """Motor 1-led waveforms with independent, complementary Motor 2 accents.
@@ -487,7 +604,7 @@ class Engine:
                     still_current = gen == self.generation
                 if still_current:
                     try:
-                        self.stop(f"Connection error: {exc}")
+                        self.stop(f"Connection error: {exc}", fault=True)
                     except RuntimeError:
                         pass
             # 0.9 s at speed 1, 0.4 s at speed 5 (LAN only).
@@ -498,12 +615,14 @@ class Engine:
     def shutdown(self):
         self.close.set()
         self.wake.set()
+        self.recovery_wake.set()
         try:
             self.stop("Dashboard shutting down")
         except RuntimeError:
             pass
         self.worker.join(timeout=3)
         self.telemetry_worker.join(timeout=3)
+        self.recovery_worker.join(timeout=3)
 
 
 
@@ -536,6 +655,9 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 .timebox{text-align:right;min-width:100px}.countdown{font-variant-numeric:tabular-nums;font-size:31px;font-weight:850;letter-spacing:-1px}
 .progress-track,.energy-track{height:6px;width:100%;background:#ffffff17;border-radius:22px;overflow:hidden;margin-top:21px}.progress-fill{height:100%;width:0%;background:linear-gradient(90deg,#9e8bff,#82e6d0);transition:width .3s}.scene-strip{display:flex;flex-wrap:wrap;gap:9px;margin:14px 0 4px}.scene-chip{border:1px solid #7363986b;background:#8172b12a;padding:7px 10px;border-radius:20px;font-weight:750;font-size:11px;color:#ddd1ff}.scene-chip.subtle{color:#b4d9d3;background:#479f8c14;border-color:#479f8c52}
 .stop{width:100%;margin-top:16px;border:1px solid #ffafbd;background:linear-gradient(105deg,#fa788f,#ffb1a7);color:#281322;font-size:16px;font-weight:900;letter-spacing:.4px;border-radius:13px;padding:16px;box-shadow:0 8px 21px #fb718542}.stop:hover{filter:brightness(1.07)}
+.fault-banner{border:2px solid #ff657f;background:#3a1725;color:#ffe1e5;border-radius:15px;padding:16px;margin:0 0 17px;font-weight:700;line-height:1.5}
+.fault-banner p{margin:7px 0;font-size:13px}.fault-banner button{margin-top:8px;background:#ffd2d9;border:0;color:#341a25;border-radius:10px;padding:12px;font-weight:850}
+.fault-banner button:disabled{opacity:.45;cursor:not-allowed}
 .sectionhead{display:flex;align-items:end;justify-content:space-between;gap:12px;margin:0 0 18px}.sectionhead h2,h2{font-size:18px;font-weight:800;margin:0;letter-spacing:-.4px}.sub{color:#98a8c2;font-size:12px}
 .stats-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px}
 .stat{background:#0e1725a8;border:1px solid #293a50;border-radius:14px;padding:15px;min-width:0}.stat-label{font-size:11px;color:#98a8c3;margin-bottom:10px}.stat-number{font-variant-numeric:tabular-nums;font-size:26px;font-weight:850;overflow-wrap:anywhere}.stat-number.small-number{font-size:17px}.online{color:#82e9cb}.danger{color:#ff9bb0}
@@ -554,6 +676,12 @@ button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid 
 
 </style></head><body>
 <div class="wrap">
+<div class="fault-banner hide" id="faultBanner" role="alert" aria-live="assertive">
+  ⚠ CONNECTION FAULT — PHYSICAL MOTOR STATE UNKNOWN
+  <p id="faultDetail">Stop could not be confirmed. Physically turn off your Edge 2.</p>
+  <p id="faultRecovery">Trying to send Stop when connection returns.</p>
+  <button id="ackFault" type="button" disabled>Acknowledge after checking physical device</button>
+</div>
 <div class="top"><div class="mark"><div class="logo">✦</div><div><div class="overline">PRIVATE DEVICE STUDIO</div><div class="title">Pulse<span class="brand-accent">Director</span><span class="version">v4.5</span></div></div></div><div class="chip"><i class="dot" id="dot"></i><span id="pill">Standby</span></div></div>
 <section class="panel"><div class="eyebrow">ON AIR <span class="status-overline">/ YOUR SESSION</span></div><div class="status-box"><div><div class="status-name" id="current">Ready to start</div><div class="status-message" id="msg">Connect Lovense Remote on home Wi-Fi and enable Game Mode.</div></div><div class="timebox"><div class="countdown" id="left">00:00</div><div class="tiny">remaining</div></div></div>
 <div class="progress-track" aria-label="Session progress"><div id="sessionProgress" class="progress-fill"></div></div>
@@ -624,7 +752,13 @@ function refreshValues(){for(const [id,suffix] of [['max',' / 20'],['speed',' / 
 ['max','speed','support','minutes','m1','m2','surprise'].forEach(id=>$(id).addEventListener('input',refreshValues));refreshValues();
 async function api(path,data){const opts={headers:{'X-Edge-Key':key}};if(data!==undefined){opts.method='POST';opts.headers['Content-Type']='application/json';opts.body=JSON.stringify(data)}const response=await fetch(path,opts);let result={};try{result=await response.json()}catch(e){}if(response.status===401){sessionStorage.removeItem('edgeKey');$('login').classList.remove('hide');throw Error('Invalid access key')}if(!response.ok||result.error)throw Error(result.error||'HTTP '+response.status);return result}
 function duration(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
-function display(s){lastRunning=!!s.running;$('current').textContent=labels[s.mode]||s.mode;$('msg').textContent=s.message||'Ready';$('pill').textContent=s.running?'Running':'Standby';$('dot').classList.toggle('live',s.running);$('stopDock').classList.toggle('hide',!s.running);let n=Math.max(0,s.secondsLeft||0);$('left').textContent=String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('sessionProgress').style.width=(s.sessionProgress||0)+'%';$('bar1').style.width=(s.motor1||0)*5+'%';$('bar2').style.width=(s.motor2||0)*5+'%';
+function display(s){
+$('faultBanner').classList.toggle('hide',!s.faultLatched);
+$('faultDetail').textContent=s.faultLatched?'Connection fault: '+(s.faultReason||s.message||'unknown')+'. Check the toy physically.':'';
+$('faultRecovery').textContent=s.stopPending?'Automatic Stop pending; retrying after reconnection. '+(s.lastStopError||''):'Stop accepted by phone API; physical state is NOT verified. Check toy and acknowledge to unlock.';
+$('ackFault').disabled=!s.faultLatched||!!s.stopPending;
+$('start').disabled=!!s.faultLatched;$('manual').disabled=!!s.faultLatched;$('test').disabled=!!s.faultLatched;
+lastRunning=!!s.running;$('current').textContent=labels[s.mode]||s.mode;$('msg').textContent=s.message||'Ready';$('pill').textContent=s.running?'Running':'Standby';$('dot').classList.toggle('live',s.running);$('stopDock').classList.toggle('hide',!s.running);let n=Math.max(0,s.secondsLeft||0);$('left').textContent=String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0');$('sessionProgress').style.width=(s.sessionProgress||0)+'%';$('bar1').style.width=(s.motor1||0)*5+'%';$('bar2').style.width=(s.motor2||0)*5+'%';
 $('level1').textContent=(s.motor1||0)+' / 20';$('level2').textContent=(s.motor2||0)+' / 20';
 $('battery').textContent=s.battery==null?'—':s.battery+'%';$('batteryBar').style.width=s.battery==null?'0%':s.battery+'%';
 $('batteryNote').textContent=s.battery==null?'No battery report':'Reported by Lovense Remote';
@@ -653,6 +787,7 @@ const stopNow=async()=>{try{display(await api('/api/stop',{}))}catch(e){error(e)
 $('stop').onclick=stopNow; $('dockStop').onclick=stopNow;
 $('manual').onclick=()=>run('/api/start',settings('manual'));
 $('test').onclick=()=>run('/api/test',{});
+$('ackFault').onclick=()=>run('/api/ack-fault',{});
 $('check').onclick=async()=>{try{const x=await api('/api/check');display(x);$('msg').textContent=x.toyConnected?'Edge 2 reported connected via LAN':'Device not connected — verify Lovense Remote Game Mode' }catch(e){error(e)}};
 ['m1','m2'].forEach(id=>$(id).addEventListener('input',()=>{if(!lastRunning)return;clearTimeout(sliderTimer);sliderTimer=setTimeout(()=>run('/api/start',settings('manual')),330)}));
 $('loginForm').addEventListener('submit',async e=>{e.preventDefault();key=$('key').value.trim();try{display(await api('/api/status'));sessionStorage.setItem('edgeKey',key);$('login').classList.add('hide');$('loginError').textContent=''}catch(e){$('loginError').textContent=e.message}});
@@ -714,7 +849,7 @@ class Handler(BaseHTTPRequestHandler):
             self._json(404, {"error": "Not found"})
 
     def do_POST(self):
-        if self.path not in ("/api/start", "/api/stop", "/api/test"):
+        if self.path not in ("/api/start", "/api/stop", "/api/test", "/api/ack-fault"):
             self._json(404, {"error": "Not found"}); return
         if self._needs_auth(): return
         try:
@@ -723,6 +858,8 @@ class Handler(BaseHTTPRequestHandler):
             data = json.loads(self.rfile.read(length).decode("utf-8")) if length else {}
             if self.path == "/api/stop":
                 result = self.server.engine.stop()
+            elif self.path == "/api/ack-fault":
+                result = self.server.engine.acknowledge_fault()
             elif self.path == "/api/test":
                 result = self.server.engine.test()
             else:

@@ -33,7 +33,10 @@
 - [x] Confirm live **GetToys** response identifies one Edge 2 on the owner's current hardware/app combination (16 October 2026)
 - [x] Verify both motors, live Stop, autonomous operation and 30-second timer expiry **off-body** (owner-reported; 16 October 2026)
 - [x] Test **phone Wi-Fi interruption/reconnection** during an active session; owner reported immediate motor stop and no automatic restart on reconnect (16 October 2026)
-- [ ] **BLOCKER:** Bluetooth interruption/reconnect **FAILED** on 16 October 2026: motors unexpectedly resumed vibration after reconnect, despite dashboard 00:00 / Lovense 402. [Issue #2](https://github.com/Otautahi/pulse-director/issues/2). Investigate, fix if possible, and retest safely off-body before **any** merge/release.
+- [x] **Mitigation retested on fix branch (16 October 2026):** Original build had persistent vibration after Bluetooth reconnect (Lovense 402); fix branch observed brief reconnect vibration followed by **automatic Stop**, fault warning and successful manual acknowledgement. [Issue #2](https://github.com/Otautahi/pulse-director/issues/2) remains open for residual risk and broader validation.
+- [x] **Wi-Fi retested on updated fix branch (17 October 2026):** motors stopped on Wi-Fi loss and stayed stopped after reconnection; automatic Stop recovery completed; acknowledgement restored controls (owner-reported).
+- [x] **Concurrent Stop/Start and Stop/motor-test** offline regression tests added; all 39 tests pass on Python 3.11 and 3.13 and on owner's Pi.
+- [ ] **Before release:** review residual brief Bluetooth reconnect vibration, verify relevant vendor terms, fresh-install and final code security review; obtain explicit merge/release approval. The dashboard cannot guarantee physical Stop during disconnection.
 - [ ] Test simultaneous/concurrent Start and Stop requests and physical disconnect fallback
 - [ ] Confirm UI telemetry and simulated-status labels are not misleading
 - [ ] Verify updated install documentation on supported fresh Raspberry Pi OS
