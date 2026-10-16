@@ -32,7 +32,7 @@ An offline regression reproduced an additional race: if an explicit Stop arrived
 - [x] Phone reachable while Bluetooth disconnected: no false Stop acknowledgements (offline)
 - [x] Phone reporting connected but refusing Stop: no false recovery (offline)
 - [x] Normal manual Stop continues to work (offline)
-- [x] Confirm full GitHub Actions test suite on Python 3.11 and 3.13 (39 offline tests, including five concurrent Stop/Start regressions)
+- [x] Confirm full GitHub Actions test suite on Python 3.10, 3.11, 3.12 and 3.13 (**40 offline tests**, including five concurrent Stop/Start regressions and one malformed-response safety test)
 - [x] First off-body check on actual Edge 2, at low intensity, with power button accessible (owner-reported, 16 October 2026)
 - [x] First Bluetooth disconnect/reconnect: error 402 triggered fault lock; after reconnect the toy briefly vibrated, then stopped **automatically** with no manual Stop; dashboard reported phone-API Stop accepted (owner-reported)
 - [x] Verify owner acknowledgement: once API recovery was reported, clicking **Acknowledge after checking physical device** cleared the red warning and returned the dashboard to normal (owner-reported, 16 October 2026)
@@ -47,6 +47,6 @@ The owner reported that the Edge 2 was detected by the isolated candidate test d
 
 ### Observed Wi-Fi recovery — 17 October 2026
 
-Following the updated concurrent Stop/Start fix (39 offline tests passed on the owner's Raspberry Pi), the owner conducted another low-intensity off-body Wave session using the isolated public candidate test dashboard on port 8766. Disabling phone Wi-Fi stopped the motors, and both red connection-fault warnings appeared. On reconnection, the motors **remained stopped**, recovery completed successfully, and the acknowledgement button restored the dashboard to normal. These results were reported by the owner, not measured independently. No brief vibration on Wi-Fi reconnect was reported.
+Following the updated concurrent Stop/Start fix (39 offline tests passed on the owner's Raspberry Pi before the final response-shape regression was added), the owner conducted another low-intensity off-body Wave session using the isolated public candidate test dashboard on port 8766. Disabling phone Wi-Fi stopped the motors, and both red connection-fault warnings appeared. On reconnection, the motors **remained stopped**, recovery completed successfully, and the acknowledgement button restored the dashboard to normal. These results were reported by the owner, not measured independently. No brief vibration on Wi-Fi reconnect was reported.
 
 This is an independent project and not affiliated with Lovense. Vendor API compatibility and redistribution terms remain under review.
