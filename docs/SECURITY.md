@@ -10,9 +10,9 @@ The dashboard controls a physical device. Use it **only on a trusted LAN or appr
 
 ## Device safety
 
-> **Known blocking safety bug (16 October 2026):** In a real Edge 2 test, Bluetooth loss produced Lovense error 402 and local session termination, but vibration **unexpectedly restarted on Bluetooth reconnection while the dashboard remained unchanged and continued to show the error/00:00**. The dashboard's stopped state must not be interpreted as physical confirmation of a stopped toy. The cause is not yet determined. Do **not** operate this release candidate on-body or rely on the on-screen timer/Stop as proof of physical inactivity. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2).
+> **Bluetooth reconnect remains an inherent risk:** In the original build, Bluetooth loss led to code 402 / 00:00, then continuous vibration on reconnect. In the updated build, one owner-observed off-body test showed **brief resumed vibration followed by automatic Stop**; the fault warning blocked new sessions until recovery and acknowledgement. **Automatic Stop cannot be delivered while Wi-Fi/Bluetooth is unavailable and is not a physical fail-safe.** Keep the physical power button accessible. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) and [recovery design](RECOVERY_DESIGN.md).
 
-- Only an `Edge`/`Edge 2` device reported connected by Game Mode is accepted; ambiguous/unsupported reports cause a refusal to start. Device detection was hardware-tested on one Edge 2, but Bluetooth reconnect safety **failed**.
+- Only an `Edge`/`Edge 2` device reported connected by Game Mode is accepted; ambiguous/unsupported reports cause a refusal to start. Device detection was tested on one Edge 2; Bluetooth reconnect was mitigated in one controlled off-body test but brief unintended vibration remains.
 - Start with the device off-body and low intensity. Keep a direct physical stop option.
 - The app transmits bounded, short-duration commands and attempts Stop on errors, expiry and shutdown, but cannot guarantee immediate physical Stop after phone, Bluetooth or network failure.
 - A new session requires a fresh device readiness check; the controller never deliberately resumes a previous one after a detected error.
@@ -20,4 +20,4 @@ The dashboard controls a physical device. Use it **only on a trusted LAN or appr
 
 ## Disclosure and compliance
 
-This project is independent and unaffiliated with Lovense. Check vendor API licensing and redistribution permissions before a public tagged release. The source is distributed under MIT; that does not override Lovense's separate developer/API terms.
+This project is independent and unaffiliated with Lovense. Public distribution via GitHub is **not cleared for a stable release**: section 3.5 of the [Application Developer and API Agreement](https://www.lovense.com/app-develop-api) restricts third-party public-code repositories unless distribution conditions are met. [Issue #4](https://github.com/Otautahi/pulse-director/issues/4) tracks written permission/clarification. The source's MIT licence does not override Lovense's separate API, app or developer-material terms.
