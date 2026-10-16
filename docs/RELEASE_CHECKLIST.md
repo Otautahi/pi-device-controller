@@ -30,7 +30,8 @@
 - [x] Follow the [off-body hardware test guide](HARDWARE_TEST.md) for basic detection, motor, Stop and timeout tests; record sanitized results (16 October 2026)
 - [x] Confirm live **GetToys** response identifies one Edge 2 on the owner's current hardware/app combination (16 October 2026)
 - [x] Verify both motors, live Stop, autonomous operation and 30-second timer expiry **off-body** (owner-reported; 16 October 2026)
-- [ ] Test loss/recovery of Wi-Fi, Bluetooth and phone connectivity; ensure no uncommanded restart
+- [x] Test **phone Wi-Fi interruption/reconnection** during an active session; owner reported immediate motor stop and no automatic restart on reconnect (16 October 2026)
+- [ ] Test **Bluetooth interruption/recovery** and other phone connectivity faults; verify no uncommanded restart
 - [ ] Test simultaneous/concurrent Start and Stop requests and physical disconnect fallback
 - [ ] Confirm UI telemetry and simulated-status labels are not misleading
 - [ ] Verify updated install documentation on supported fresh Raspberry Pi OS
