@@ -1,6 +1,6 @@
 # Connection-failure Stop recovery — experimental design
 
-**Status: proposed fix, OFFLINE-TESTED ONLY.** This is not a physical stop guarantee. See the [release blocker](https://github.com/Otautahi/pulse-director/issues/2) for the actual 16 October 2026 Bluetooth-reconnect failure. Do not merge or make an on-body release based on offline test success.
+**Status: prototype, with a first successful off-body reconnection test (16 October 2026).** This is not a physical Stop guarantee. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) for the original persistent vibration on Bluetooth reconnect and the fix follow-up. **The updated build still allowed a brief reconnect vibration before automatically stopping it.** Further testing, review and owner approval are required before merging or release.
 
 ## Behaviour implemented in this fix branch
 
@@ -28,9 +28,14 @@
 - [x] Phone reachable while Bluetooth disconnected: no false Stop acknowledgements (offline)
 - [x] Phone reporting connected but refusing Stop: no false recovery (offline)
 - [x] Normal manual Stop continues to work (offline)
-- [ ] Confirm full GitHub Actions test suite on Python 3.11 and 3.13
-- [ ] Review with physical toy **off-body**, at low intensity, with direct power button available
-- [ ] Repeat Bluetooth disconnect/reconnect with care; log any vibration before automatic Stop arrives
+- [x] Confirm full GitHub Actions test suite on Python 3.11 and 3.13 (34 offline tests)
+- [x] First off-body check on actual Edge 2, at low intensity, with power button accessible (owner-reported, 16 October 2026)
+- [x] First Bluetooth disconnect/reconnect: error 402 triggered fault lock; after reconnect the toy briefly vibrated, then stopped **automatically** with no manual Stop; dashboard reported phone-API Stop accepted (owner-reported)
+- [ ] Repeat controlled off-body failure/reconnection tests under varied timing, and confirm acknowledgement/unlocking
 - [ ] Recheck against phone/app/firmware variability and concurrent API requests before release
+
+### Observed physical behaviour — 16 October 2026
+
+The owner reported that the Edge 2 was detected by the fix-branch dashboard on port 8766 and, when Bluetooth was disabled during a Wave session, the fault warning appeared with automatic Stop pending. Following Bluetooth reconnection, the toy **vibrated briefly and then stopped automatically**. The dashboard later showed Stop had been accepted by the phone API and enabled the acknowledgement button. This was **one successful off-body physical test**, not a quantitative stop-latency measurement. The user has not yet confirmed whether acknowledgement clears the lock successfully.
 
 This is an independent project and not affiliated with Lovense. Vendor API compatibility and redistribution terms remain under review.
