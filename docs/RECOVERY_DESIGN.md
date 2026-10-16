@@ -31,11 +31,12 @@
 - [x] Confirm full GitHub Actions test suite on Python 3.11 and 3.13 (34 offline tests)
 - [x] First off-body check on actual Edge 2, at low intensity, with power button accessible (owner-reported, 16 October 2026)
 - [x] First Bluetooth disconnect/reconnect: error 402 triggered fault lock; after reconnect the toy briefly vibrated, then stopped **automatically** with no manual Stop; dashboard reported phone-API Stop accepted (owner-reported)
-- [ ] Repeat controlled off-body failure/reconnection tests under varied timing, and confirm acknowledgement/unlocking
+- [x] Verify owner acknowledgement: once API recovery was reported, clicking **Acknowledge after checking physical device** cleared the red warning and returned the dashboard to normal (owner-reported, 16 October 2026)
+- [ ] Repeat controlled off-body failure/reconnection tests under varied timing
 - [ ] Recheck against phone/app/firmware variability and concurrent API requests before release
 
 ### Observed physical behaviour — 16 October 2026
 
-The owner reported that the Edge 2 was detected by the fix-branch dashboard on port 8766 and, when Bluetooth was disabled during a Wave session, the fault warning appeared with automatic Stop pending. Following Bluetooth reconnection, the toy **vibrated briefly and then stopped automatically**. The dashboard later showed Stop had been accepted by the phone API and enabled the acknowledgement button. This was **one successful off-body physical test**, not a quantitative stop-latency measurement. The user has not yet confirmed whether acknowledgement clears the lock successfully.
+The owner reported that the Edge 2 was detected by the fix-branch dashboard on port 8766 and, when Bluetooth was disabled during a Wave session, the fault warning appeared with automatic Stop pending. Following Bluetooth reconnection, the toy **vibrated briefly and then stopped automatically**. The dashboard later showed Stop had been accepted by the phone API and enabled the acknowledgement button. This was **one successful off-body physical test**, not a quantitative stop-latency measurement. The owner subsequently confirmed that clicking the acknowledgement button cleared the red warning and returned the dashboard to normal. This verifies the observed UI acknowledgement flow, but does not independently prove physical motor state or test restarting a motor session.
 
 This is an independent project and not affiliated with Lovense. Vendor API compatibility and redistribution terms remain under review.
