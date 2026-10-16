@@ -1,6 +1,6 @@
 # Install PulseDirector v4.5 LAN Edition
 
-**Release-candidate instructions.** This build has passed automated offline tests, but has **not yet been physically verified with an Edge 2 after the LAN-only conversion**. Keep an existing working controller installed separately. Never overwrite an active installation to try this release.
+**Experimental release-candidate instructions, not a stable release.** The updated LAN-only build passed 39 offline tests and limited off-body hardware checks on one Edge 2 (including Bluetooth/Wi-Fi interruption and automatic Stop recovery). The toy briefly vibrated on Bluetooth reconnection before automatically stopping. These results do not establish physical fail-safe performance. Public stable publication is on hold pending [API-terms clarification](https://github.com/Otautahi/pulse-director/issues/4). Keep any existing working controller installed separately.
 
 ## 1. Requirements
 
@@ -10,7 +10,7 @@
 - A trusted LAN on which the Pi can reach the phone's Game Mode IPv4 address
 - An independent way to physically disconnect/stop the device
 
-**Not required:** cloud API token, developer account, QR pairing service, Cloud Keeper, pip dependencies, Pi-hole or WireGuard. Cloud mode and Max 2 are not supported.
+**Not technically required for this specific local transport:** cloud API token, QR pairing service, Cloud Keeper, pip dependencies, Pi-hole or WireGuard. Cloud mode and Max 2 are not supported. Vendor developer/API terms may still impose registration, permissions or conditions on distribution; see [issue #4](https://github.com/Otautahi/pulse-director/issues/4).
 
 On Debian / Raspberry Pi OS, install Python and Git if needed:
 
@@ -82,9 +82,9 @@ Before use:
 2. Try Motor 1 and Motor 2 separately at the lowest intensity.
 3. Start a very short session and press **Stop all motors**.
 4. Verify automatic timer expiry and mode switching.
-5. Test Wi-Fi/Bluetooth interruption in a controlled off-body setup, with the device immediately accessible for physical disconnection.
+5. During any testing of recovery from Wi-Fi/Bluetooth interruption, keep the toy **off-body** and the physical power button immediately accessible. Communication failure can prevent Stop commands from reaching the toy; on reconnection it may briefly activate before automatic retries stop it.
 
-**Important:** The software can only attempt Stop over the same connection as Start. A failure of the phone, Bluetooth, network or hardware can prevent an immediate remote stop.
+**Important:** The software can only attempt Stop over the same connection as Start. Its fault latch blocks further sessions until the phone API accepts recovery Stop commands and the operator physically checks the toy and acknowledges the warning. An API acknowledgement is not independent evidence that the motors stopped. A phone, Bluetooth, network or hardware failure can prevent an immediate remote Stop.
 
 ## 6. Access key and safe deployment
 
