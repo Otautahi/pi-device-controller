@@ -1,6 +1,6 @@
 # Install PulseDirector v4.5 LAN Edition
 
-**Experimental release-candidate instructions, not a stable release.** The updated LAN-only build passed 40 offline tests across Python 3.10–3.13 in GitHub Actions and limited off-body hardware checks on one Edge 2 (including Bluetooth/Wi-Fi interruption and automatic Stop recovery). The toy briefly vibrated on Bluetooth reconnection before automatically stopping. These results do not establish physical fail-safe performance. Public stable publication is on hold pending [API-terms clarification](https://github.com/Otautahi/pulse-director/issues/4). Keep any existing working controller installed separately.
+**Experimental release-candidate instructions, not a stable release.** The updated LAN-only build passed 40 offline tests across Python 3.10–3.13 in GitHub Actions and limited off-body hardware checks on one Edge 2 (including Bluetooth/Wi-Fi interruption and automatic Stop recovery). The toy briefly vibrated on Bluetooth reconnection before automatically stopping. These results do not establish physical fail-safe performance. Public stable publication still requires final safety, fresh-install and owner approval. [API-terms ambiguity](https://github.com/Otautahi/pulse-director/issues/4) is documented as a clarification rather than a definitive prohibition. Keep any existing working controller installed separately.
 
 ## 1. Requirements
 
