@@ -1,0 +1,29 @@
+# Runtime credentials, device status and files
+.edge_dashboard_key
+.edge_cloud_*
+.env
+.env.*
+*.token
+*credentials*
+*.secret
+*.log
+*.pid
+*.sqlite3
+*.db
+qr*
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.zip
+*.tar.gz
+# Environment and generated outputs
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.coverage
+.DS_Store
+backups/
+logs/

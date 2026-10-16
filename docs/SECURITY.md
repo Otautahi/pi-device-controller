@@ -1,30 +1,23 @@
 # Security and privacy
 
-PulseDirector can operate a physical device. Treat the ability to log into the dashboard as control access, and take particular care before making any code or screenshots public.
+The dashboard controls a physical device. Use it **only on a trusted LAN or appropriately configured private VPN**. It listens on loopback by default. If binding to a LAN interface, restrict network access to trusted clients; never forward the port to the public internet. The interface uses HTTP and a shared dashboard key rather than TLS; untrusted LAN users could potentially intercept traffic.
 
-## Protect access
+## Files and credentials
 
-- Keep the dashboard restricted to a **trusted home LAN** or a **private VPN** such as WireGuard. It uses **HTTP, not HTTPS**. Never forward/open port `8765` on your router to the internet.
-- Use a unique dashboard access key; keep `.edge_dashboard_key` permission `0600`. Don't put it into URLs, screenshots or GitHub issues.
-- Keep `.edge_cloud_token` permission `0600`. Never include it in a repository, issue, log, photo or public installer. Your Lovense token is a credential, not a setting to share.
-- Pairing QR codes and the status file are private runtime artifacts. Delete unnecessary exported QR copies from your Windows Downloads folder.
-- Create your own unique UID and developer-platform registration. Don't publish the UID, QR payload, device IDs or any personal network details.
+- `.edge_dashboard_key` is generated locally with owner-only permissions, and is not included in the source ZIP. Do not expose it in screenshots, GitHub commits, bug reports or application logs.
+- No cloud token, pairing QR, private UID, device identifier, hardcoded private network address, systemd unit or backup from the owner's Pi is included.
+- `.gitignore` cannot undo historic commits containing secrets. Rotate leaked secrets, and remove sensitive objects from public Git history before publication.
 
-## Protect the device
+## Device safety
 
-- **Only the Lovense Edge 2 is supported.** Disconnect other devices before use. The release candidate rejects unexpected/multiple devices in reported data, but this has not been exhaustively tested with every firmware and connection combination.
-- Start with an off-body, low-intensity test. Keep an independent physical way to disconnect/stop the toy.
-- Stop and timed commands are **best effort** over Bluetooth, phone and cloud links. A network outage may prevent immediate Stop delivery. The user remains responsible for the physical device.
-- Do not deploy an untested change while a session is active. A dropped connection should never silently restart a prior session.
+> **Bluetooth reconnect remains an inherent risk:** In the original build, Bluetooth loss led to code 402 / 00:00, then continuous vibration on reconnect. In the updated build, one owner-observed off-body test showed **brief resumed vibration followed by automatic Stop**; the fault warning blocked new sessions until recovery and acknowledgement. **Automatic Stop cannot be delivered while Wi-Fi/Bluetooth is unavailable and is not a physical fail-safe.** Keep the physical power button accessible. See [issue #2](https://github.com/Otautahi/pulse-director/issues/2) and [recovery design](RECOVERY_DESIGN.md).
 
-## Keep GitHub clean
+- Only an `Edge`/`Edge 2` device reported connected by Game Mode is accepted; ambiguous/unsupported reports cause a refusal to start. Device detection was tested on one Edge 2; Bluetooth reconnect was mitigated in one controlled off-body test but brief unintended vibration remains.
+- Start with the device off-body and low intensity. Keep a direct physical stop option.
+- The app transmits bounded, short-duration commands and attempts Stop on errors, expiry and shutdown, but cannot guarantee immediate physical Stop after phone, Bluetooth or network failure.
+- A new session requires a fresh device readiness check; the controller never deliberately resumes a previous one after a detected error.
+- Dashboard command counts are not proof of physical vibration.
 
-- Never upload the working Pi directory wholesale. Publish only a reviewed source-only copy.
-- `.gitignore` excludes common secrets and build files, but it **cannot guarantee safety**. Always inspect `git status` and staged diffs before committing.
-- If a token or key is committed, revoke/rotate it immediately. Removing it in a future commit is **not** enough: Git history may still contain it.
-- GitHub account names and commit author information can be public even when source files are anonymised. The repository is intentionally hosted under `Otautahi`.
-- Do not put private IP addresses, home addresses, device IDs, login screenshots or unredacted logs in public issues.
+## Disclosure and compliance
 
-## Legal and service considerations
-
-This independent project is not affiliated with Lovense. Developer APIs and third-party distribution are governed by Lovense's rules and can change. Confirm whether developer registration and API access permit a public application before issuing a first release.
+This project is independent and unaffiliated with Lovense. The [Application Developer and API Agreement](https://www.lovense.com/app-develop-api) includes publication provisions, but its applicability to independently written offline/LAN Game Mode projects is unclear. Similar community integrations and official examples are available on GitHub; this is not a substitute for independent permission. [Issue #4](https://github.com/Otautahi/pulse-director/issues/4) tracks optional clarification. The source's MIT licence does not override Lovense's separate API, app or developer-material terms.

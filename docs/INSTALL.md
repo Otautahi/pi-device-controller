@@ -1,185 +1,108 @@
-# Installation guide — Edge 2 only
+# Install PulseDirector v4.5 LAN Edition
 
-> **Pre-release documentation.** The public repository does not yet contain an officially released controller. Follow these steps **after** a tested release is published. They are for the **Lovense Edge 2 only**. Keep other Lovense devices disconnected.
+**Experimental release-candidate instructions, not a stable release.** The updated LAN-only build passed 40 offline tests across Python 3.10–3.13 in GitHub Actions and limited off-body hardware checks on one Edge 2 (including Bluetooth/Wi-Fi interruption and automatic Stop recovery). The toy briefly vibrated on Bluetooth reconnection before automatically stopping. These results do not establish physical fail-safe performance. Public stable publication still requires final safety, fresh-install and owner approval. [API-terms ambiguity](https://github.com/Otautahi/pulse-director/issues/4) is documented as a clarification rather than a definitive prohibition. Keep any existing working controller installed separately.
 
-This guide uses Raspberry Pi OS as the tested Linux example, a Windows PC for initial setup, and an Android phone running Lovense Remote. The controller is intended for other Linux hosts too, but those installations have not yet been verified. Linux/macOS users can adapt the SSH commands. You don't need prior GitHub experience.
+## 1. Requirements
 
-## 1. What you need
+- Raspberry Pi OS or another Linux distribution, with **Python 3.10+** and Git
+- Lovense Edge 2 with the Lovense Remote phone app
+- Lovense Remote **Game Mode enabled**
+- A trusted LAN on which the Pi can reach the phone's Game Mode IPv4 address
+- An independent way to physically disconnect/stop the device
 
-- A Linux host with Python 3, an internet connection and SSH; the original development and tested platform is Raspberry Pi 3B+ running Raspberry Pi OS.
-- Python 3, `curl`, `python3-venv` and sufficient permissions to install packages.
-- A **Lovense Edge 2** and Lovense Remote on your phone, paired through Bluetooth.
-- A trusted home network. For control **away from home**, a private VPN (for example WireGuard) that can reach the Pi's home LAN address.
-- For optional cloud operation: **your own** Lovense Developer Token and registered platform name. [Lovense Developer](https://developer.lovense.com/).
+**Not technically required for this specific local transport:** cloud API token, QR pairing service, Cloud Keeper, pip dependencies, Pi-hole or WireGuard. Cloud mode and Max 2 are not supported. Vendor developer/API terms may still impose registration, permissions or conditions on distribution; see [issue #4](https://github.com/Otautahi/pulse-director/issues/4).
 
-Do not install over an existing working controller folder. Back up an existing installation and start with a new directory.
-
-## 2. Get onto the Pi
-
-From **Windows Command Prompt** (not inside the Pi SSH terminal):
-
-```cmd
-ssh YOUR_PI_USERNAME@YOUR_PI_IP
-```
-
-Replace `YOUR_PI_USERNAME` and `YOUR_PI_IP` with your own values. If SSH asks to trust a new host key, verify that you're connecting to your actual Pi before accepting it. SSH passwords don't display while typing.
-
-After connecting, the prompt should show something like `user@raspberrypi:~ $`. Commands in the remaining `bash` blocks run **there, on the Pi**.
-
-## 3. Download a tagged release
-
-After the first release appears under **[GitHub Releases](https://github.com/Otautahi/pulse-director/releases)**, use the tagged source archive or clone the repository. For example:
-
-```bash
-cd ~
-git clone https://github.com/Otautahi/pulse-director.git
-cd pulse-director
-```
-
-If `git` is unavailable, run `sudo apt install -y git`. **Do not expect a runnable controller in the GitHub repository until the code is released.**
-
-## 4. Install Python dependencies
+On Debian / Raspberry Pi OS, install Python and Git if needed:
 
 ```bash
 sudo apt update
-sudo apt install -y python3-venv curl libopenjp2-7
-python3 -m venv .venv
-.venv/bin/python -m pip install -r requirements.txt
+sudo apt install -y python3 git
+python3 --version
 ```
 
-The optional cloud keeper requires the virtual environment's Socket.IO and QR image packages. **Don't install these packages into Pi-hole's system environment.**
+Use a separate directory from any existing software.
 
-Run the offline, **no-device** test first:
+## 2. Clone the release candidate
 
 ```bash
-python3 scripts/smoke_test.py
+cd ~
+git clone --branch release/v4.5.0-lan-rc1 --single-branch https://github.com/Otautahi/pulse-director.git pulse-director-lan
+cd pulse-director-lan
+python3 -m unittest discover -s tests -v
 ```
 
-The smoke test does not intentionally send toy commands. Passing it doesn't prove real-device operation.
+Tests simulate device replies and do **not** command physical motors. An automated pass is not proof of real-device compatibility.
 
-## 5. Test the dashboard in simulation
+## 3. Try the simulation first
 
-On the Pi:
+Run locally on the Pi:
 
 ```bash
-python3 edge_dashboard.py --simulate --bind 127.0.0.1 --port 8765 --no-print-key
+python3 edge_dashboard.py --simulate
 ```
 
-Leave this terminal open. In another SSH session, retrieve the dashboard key **privately**:
+The dashboard defaults to **127.0.0.1:8765** and prints a generated access key. On the Pi itself, open `http://127.0.0.1:8765` and enter that key.
+
+If you use a headless Pi, the easiest way to view simulation from a PC is an SSH tunnel:
 
 ```bash
-cd ~/pulse-director
-cat .edge_dashboard_key
+ssh -L 8765:127.0.0.1:8765 YOUR_PI_SSH_USER@YOUR_PI_LAN_IP
 ```
 
-To open the simulation from Windows, use a **new Windows Command Prompt**:
+Run the simulation in the SSH session or another Pi terminal, then open `http://127.0.0.1:8765` on **your PC**. If that port is already used on your PC, change the *first* 8765 in the SSH command to another free local port.
 
-```cmd
-ssh -L 8765:127.0.0.1:8765 YOUR_PI_USERNAME@YOUR_PI_IP
-```
+Alternatively, on a trusted isolated LAN only, bind the simulator to the Pi LAN address with `--simulate --bind YOUR_PI_LAN_IP` and open `http://YOUR_PI_LAN_IP:8765`. Do not port-forward.
 
-Then open `http://127.0.0.1:8765` on that Windows PC. Stop simulation with `Ctrl+C` before running real hardware.
+Press **Ctrl+C** to exit.
 
-## 6. Local Edge 2 control at home
+## 4. Connect the Edge 2 over LAN
 
-1. On your phone, connect **only your Edge 2** in Lovense Remote.
-2. Enable **Game Mode → LAN** and find the phone's local Wi-Fi IP address.
-3. Ensure the phone and Pi are on the same trusted LAN and phone Game Mode remains active.
-4. Start the controller on the Pi, replacing the placeholders:
+1. Turn on the Edge 2 and pair it in **Lovense Remote**.
+2. Disconnect Max 2 and all other Lovense toys: this build supports **one Edge 2 only**.
+3. Enable **Game Mode** in Lovense Remote; note the **phone's Game Mode IPv4 address**.
+4. Ensure the phone and Pi are on the same trusted, mutually reachable network. Guest isolation, VLAN firewall rules, or phone switching to cellular can prevent access.
+5. Off-body and at the lowest intensity, start:
 
 ```bash
-cd ~/pulse-director
-python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP --port 8765 --no-print-key
+cd ~/pulse-director-lan
+python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP
 ```
 
-Open `http://YOUR_PI_LAN_IP:8765` in a browser on the same LAN, enter the dashboard key and use a **short, low-intensity off-body test**. Verify the emergency Stop button and session end. Leave the command running during testing; `Ctrl+C` stops the server.
+Use actual addresses shown on *your* network. `--phone` must be a private LAN IPv4 address. `--bind` is the Pi interface to serve the web dashboard on; its safe default is `127.0.0.1`.
 
-**Never configure `--bind 0.0.0.0` or open port `8765` to the internet.** The app requires a specific private interface and serves HTTP, not HTTPS.
+Open `http://YOUR_PI_LAN_IP:8765` from a browser on your trusted LAN and enter the key printed on the Pi.
 
-## 7. Optional cloud control — developer registration and token
+`--port 8765` is optional; supply another port if necessary. A local firewall must allow the selected port from your trusted client devices only.
 
-You can skip this entire section for LAN-only use.
+## 5. Verify the real hardware off-body
 
-1. Register **your own** Lovense developer platform and retain its exact platform name.
-2. Choose a stable, unique **UID for your installation** (for example, a random identifier you create). Use the *same* UID in the dashboard and Cloud Keeper. Don't reuse someone else's UID.
-3. Save the developer token **privately** on the Pi. Run the `read` line separately and paste the token at its prompt:
+Before use:
+
+1. Confirm that the dashboard identifies a **single connected Edge 2**. If it refuses the model, **do not override the restriction**; file a sanitized compatibility report.
+2. Try Motor 1 and Motor 2 separately at the lowest intensity.
+3. Start a very short session and press **Stop all motors**.
+4. Verify automatic timer expiry and mode switching.
+5. During any testing of recovery from Wi-Fi/Bluetooth interruption, keep the toy **off-body** and the physical power button immediately accessible. Communication failure can prevent Stop commands from reaching the toy; on reconnection it may briefly activate before automatic retries stop it.
+
+**Important:** The software can only attempt Stop over the same connection as Start. Its fault latch blocks further sessions until the phone API accepts recovery Stop commands and the operator physically checks the toy and acknowledges the warning. An API acknowledgement is not independent evidence that the motors stopped. A phone, Bluetooth, network or hardware failure can prevent an immediate remote Stop.
+
+## 6. Access key and safe deployment
+
+At first launch, PulseDirector generates a random access key in `.edge_dashboard_key` beside `edge_dashboard.py`, with owner-only file permissions. Keep it private. Never paste it into GitHub, logs, screenshots or issues. The app uses HTTP, **not TLS**, so treat anyone who can reach the page or intercept LAN traffic as a potential controller.
+
+- Do **not** expose or forward port `8765` on your router.
+- Use a trusted LAN or a properly configured private VPN; limit access to authorized devices.
+- Don't install public code on the live Pi service before testing it.
+- This release candidate deliberately does **not** install a systemd service or auto-start active sessions.
+
+## 7. Updates and troubleshooting
+
+To fetch later changes to the **same candidate branch**, stop the test server and run:
 
 ```bash
-cd ~/pulse-director
-umask 077
-read -r -s -p 'Developer token: ' EDGE_TOKEN; echo
+cd ~/pulse-director-lan
+git pull --ff-only
+python3 -m unittest discover -s tests -v
 ```
 
-Then run the following **separately** (the token variable exists only in the current shell):
-
-```bash
-if [ -n "$EDGE_TOKEN" ]; then
-  printf '%s\n' "$EDGE_TOKEN" > .edge_cloud_token
-  chmod 600 .edge_cloud_token
-  echo 'Token saved'
-else
-  echo 'Nothing saved: token was empty'
-fi
-unset EDGE_TOKEN
-```
-
-Check permissions without printing the token:
-
-```bash
-stat -c '%a %n' .edge_cloud_token
-```
-
-Expected permissions are `600`. **Never share the token, a QR image or a copy of `.edge_cloud_token`.**
-
-## 8. Optional cloud control — pair with Cloud Keeper
-
-Stop the dashboard before changing connection settings. In the Pi terminal, replace both values:
-
-```bash
-cd ~/pulse-director
-EDGE_UID=YOUR_UNIQUE_UID EDGE_PLATFORM='YOUR_EXACT_PLATFORM_NAME' .venv/bin/python edge2_cloud_keeper.py
-```
-
-Cloud Keeper uses Lovense's Socket.IO API to maintain the pairing connection. If it needs authorisation, it will create `edge2_service_pairing_qr.png` in the project folder.
-
-If you need to scan it from your PC monitor, in a **separate Windows Command Prompt** copy it from the Pi:
-
-```cmd
-scp YOUR_PI_USERNAME@YOUR_PI_IP:/home/YOUR_PI_USERNAME/pulse-director/edge2_service_pairing_qr.png "%USERPROFILE%\Downloads\edge2_service_pairing_qr.png"
-```
-
-Open the image locally, then use Lovense Remote's appropriate **Scan QR** function. Keep the keeper process running while pairing. **Don't upload the QR to an issue or share it in chat.** Some versions of the app may require repeated attempts or reauthorisation.
-
-In a second Pi SSH terminal, check status:
-
-```bash
-cd ~/pulse-director
-python3 -m json.tool .edge_cloud_keeper_status.json
-```
-
-Look for `"state": "device_connected"` and `"device_connected": true`. If you see `pairing_qr_ready`, the pairing has not yet been confirmed. **The keeper receives telemetry but does not send motor commands.**
-
-Once paired, start the dashboard with the same UID:
-
-```bash
-cd ~/pulse-director
-python3 edge_dashboard.py --phone YOUR_PHONE_LAN_IP --bind YOUR_PI_LAN_IP --uid YOUR_UNIQUE_UID --port 8765 --no-print-key
-```
-
-If the phone is reachable on your home LAN, the dashboard will prefer LAN. Away from home, it can select Lovense HTTPS cloud **at session start**, provided Cloud Keeper reports the Edge 2 connected. Stop any active session before changing networks; an interrupted session must not restart automatically.
-
-## 9. Keep the services running after SSH closes (optional)
-
-Only after you have physically verified **Start and Stop** on local and cloud connections, follow [systemd service setup](SERVICES.md). Cloud Keeper and the dashboard need separate systemd services. The example files need your own username, paths, IP addresses, UID and platform name.
-
-## 10. Remote dashboard access through WireGuard
-
-Configure WireGuard (or another **private VPN**) so your phone can access the Pi's private LAN IP. Open `http://YOUR_PI_LAN_IP:8765` **through that VPN**. Do not publish it to the open internet and never give strangers your dashboard access key. **Cloud API connectivity and VPN access are separate:** the VPN reaches the Pi's dashboard, while Lovense's cloud API reaches the phone/device.
-
-## 11. Upgrades and rollback
-
-Back up the current controller, Cloud Keeper, service units and local configuration **privately** before upgrading. An existing installation may use different file paths or service arguments; don't blindly overwrite it with instructions intended for a clean installation. Keep a verified working copy until the new version passes a low-intensity off-body test.
-
-## Next steps
-
-If something doesn't work, see [Troubleshooting](TROUBLESHOOTING.md). Before sharing any logs, remove developer tokens, dashboard access keys, pairing QR details, device IDs and your home IP addresses.
+Do not automatically upgrade the private controller or overwrite its key/config. For connection errors, unavailable addresses, access-key problems and compatibility warnings, see [Troubleshooting](TROUBLESHOOTING.md) and [Security](SECURITY.md).
